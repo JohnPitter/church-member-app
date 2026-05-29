@@ -1,0 +1,26 @@
+# Gradle / build
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android
+local.properties
+*.apk
+*.aab
+.cxx/
+
+# Firebase config (secrets — each dev downloads their own)
+google-services.json
+GoogleService-Info.plist
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+
+# iOS / Xcode
+xcuserdata/
+*.xcworkspace/xcuserdata/
+Pods/
+DerivedData/

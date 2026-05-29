@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Cruz -->
+    <path android:fillColor="#FFFFFF" android:pathData="M51,30 H57 V46 H51 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M46,35 H62 V41 H46 Z" />
+    <!-- Telhado -->
+    <path android:fillColor="#FFFFFF" android:pathData="M54,43 L33,61 H75 Z" />
+    <!-- Corpo -->
+    <path android:fillColor="#FFFFFF" android:pathData="M37,61 H71 V81 H37 Z" />
+    <!-- Porta -->
+    <path android:fillColor="#2563EB" android:pathData="M49,69 Q49,64 54,64 Q59,64 59,69 V81 H49 Z" />
+</vector>

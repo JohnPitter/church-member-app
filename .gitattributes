@@ -1,0 +1,12 @@
+# Normaliza finais de linha: LF no repositório.
+* text=auto eol=lf
+
+# Scripts específicos de SO
+*.bat text eol=crlf
+
+# Binários
+*.jar binary
+*.png binary
+*.webp binary
+*.keystore binary
+*.jks binary
