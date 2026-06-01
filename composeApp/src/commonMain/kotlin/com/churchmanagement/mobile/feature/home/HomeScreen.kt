@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,16 +36,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.churchmanagement.mobile.data.DevotionalRepository
 import com.churchmanagement.mobile.data.EventRepository
+import com.churchmanagement.mobile.data.MemberRepository
 import com.churchmanagement.mobile.domain.AppUser
+import com.churchmanagement.mobile.domain.Birthday
 import com.churchmanagement.mobile.domain.Devotional
 import com.churchmanagement.mobile.feature.events.EventCard
 import com.churchmanagement.mobile.ui.CardSkeleton
+import com.churchmanagement.mobile.ui.MemberAvatar
 import com.churchmanagement.mobile.ui.SkeletonBox
+import com.churchmanagement.mobile.ui.WhatsAppButton
 import com.churchmanagement.mobile.ui.shimmerBrush
+import com.churchmanagement.mobile.util.currentLocalDate
 import com.churchmanagement.mobile.util.firstName
+import com.churchmanagement.mobile.util.monthNamePt
 import com.churchmanagement.mobile.util.toLongDate
 import org.koin.compose.koinInject
 
@@ -64,12 +74,16 @@ fun HomeScreen(
 ) {
     val eventRepo: EventRepository = koinInject()
     val devotionalRepo: DevotionalRepository = koinInject()
+    val memberRepo: MemberRepository = koinInject()
 
+    val today = remember { currentLocalDate() }
     val eventsFlow = remember { eventRepo.observeUpcoming(limit = 3) }
     val devotionalsFlow = remember { devotionalRepo.observePublished(limit = 1) }
+    val birthdaysFlow = remember { memberRepo.observeBirthdays(today.monthNumber) }
 
     val events by eventsFlow.collectAsState(initial = null)
     val devotionals by devotionalsFlow.collectAsState(initial = null)
+    val birthdays by birthdaysFlow.collectAsState(initial = emptyList())
     val brush = shimmerBrush()
 
     LazyColumn(
@@ -95,6 +109,16 @@ fun HomeScreen(
             else -> devs.firstOrNull()?.let { devotional ->
                 item { DevotionalHighlight(devotional, onClick = { onOpenDevotional(devotional.id) }) }
             }
+        }
+
+        if (birthdays.isNotEmpty()) {
+            item {
+                SectionHeader(
+                    title = "Aniversariantes de ${monthNamePt(today.monthNumber)} 🎂",
+                    onSeeAll = onOpenBirthdays,
+                )
+            }
+            item { BirthdayCarousel(birthdays = birthdays, todayDay = today.dayOfMonth) }
         }
 
         item { SectionHeader(title = "Próximos eventos", onSeeAll = onSeeAllEvents) }
@@ -174,6 +198,49 @@ private fun ShortcutCard(
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(text = label, style = MaterialTheme.typography.titleMedium)
+        }
+    }
+}
+
+@Composable
+private fun BirthdayCarousel(birthdays: List<Birthday>, todayDay: Int) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(birthdays, key = { it.id }) { birthday ->
+            BirthdayCarouselCard(birthday = birthday, isToday = birthday.day == todayDay)
+        }
+    }
+}
+
+@Composable
+private fun BirthdayCarouselCard(birthday: Birthday, isToday: Boolean) {
+    Card(
+        modifier = Modifier.width(150.dp),
+        colors = if (isToday) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        } else {
+            CardDefaults.cardColors()
+        },
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            MemberAvatar(name = birthday.name, photoUrl = birthday.photoUrl, size = 56.dp)
+            Text(
+                text = birthday.name,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.height(40.dp),
+            )
+            Text(
+                text = if (isToday) "Hoje! 🎂" else "Dia ${birthday.day}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            WhatsAppButton(phone = birthday.phone, modifier = Modifier.fillMaxWidth())
         }
     }
 }

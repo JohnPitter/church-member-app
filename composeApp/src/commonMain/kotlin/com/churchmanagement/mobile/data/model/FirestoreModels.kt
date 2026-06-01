@@ -210,6 +210,7 @@ data class CreateForumReplyDto(
 @Serializable
 data class MemberBirthdayDto(
     val name: String = "",
+    val phone: String? = null,
     val birthDate: Timestamp? = null,
     val dataNascimento: Timestamp? = null,
     val photoURL: String? = null,

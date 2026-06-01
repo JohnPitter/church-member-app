@@ -130,6 +130,7 @@ data class Birthday(
     val day: Int,
     val month: Int,
     val photoUrl: String?,
+    val phone: String?,
 )
 
 data class NotificationItem(

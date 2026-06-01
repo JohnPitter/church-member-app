@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,14 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.churchmanagement.mobile.data.MemberRepository
+import com.churchmanagement.mobile.ui.MemberAvatar
 import com.churchmanagement.mobile.domain.Birthday
 import com.churchmanagement.mobile.ui.EmptyState
 import com.churchmanagement.mobile.ui.ListSkeleton
+import com.churchmanagement.mobile.ui.WhatsAppButton
 import com.churchmanagement.mobile.util.currentLocalDate
 import com.churchmanagement.mobile.util.monthNamePt
 import org.koin.compose.koinInject
@@ -88,7 +86,7 @@ private fun BirthdayCard(birthday: Birthday, isToday: Boolean) {
             modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Avatar(birthday)
+            MemberAvatar(name = birthday.name, photoUrl = birthday.photoUrl, size = 48.dp)
             Column(Modifier.padding(start = 14.dp).weight(1f)) {
                 Text(
                     text = birthday.name,
@@ -100,32 +98,9 @@ private fun BirthdayCard(birthday: Birthday, isToday: Boolean) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                WhatsAppButton(phone = birthday.phone, modifier = Modifier.padding(top = 8.dp))
             }
             DayBadge(birthday.day)
-        }
-    }
-}
-
-@Composable
-private fun Avatar(birthday: Birthday) {
-    if (!birthday.photoUrl.isNullOrBlank()) {
-        AsyncImage(
-            model = birthday.photoUrl,
-            contentDescription = birthday.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.size(48.dp).clip(CircleShape),
-        )
-    } else {
-        Box(
-            modifier = Modifier.size(48.dp).clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = birthday.name.take(1).uppercase(),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
-            )
         }
     }
 }

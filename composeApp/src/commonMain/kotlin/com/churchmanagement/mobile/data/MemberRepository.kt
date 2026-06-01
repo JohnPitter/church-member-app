@@ -33,6 +33,7 @@ class MemberRepository(private val firestore: FirebaseFirestore) {
                                 day = date.dayOfMonth,
                                 month = date.monthNumber,
                                 photoUrl = dto.photoURL,
+                                phone = dto.phone,
                             )
                         } else {
                             null
