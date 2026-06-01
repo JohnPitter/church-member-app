@@ -15,6 +15,9 @@ keystore.properties
 *.jks
 *.keystore
 
+# Materiais da loja gerados localmente (têm dados de teste)
+store-assets/
+
 # Firebase config (secrets — each dev downloads their own)
 google-services.json
 GoogleService-Info.plist
