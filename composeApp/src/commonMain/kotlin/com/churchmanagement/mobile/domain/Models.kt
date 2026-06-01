@@ -124,6 +124,14 @@ data class Leader(
     val photo: String?,
 )
 
+data class Birthday(
+    val id: String,
+    val name: String,
+    val day: Int,
+    val month: Int,
+    val photoUrl: String?,
+)
+
 data class NotificationItem(
     val id: String,
     val title: String,

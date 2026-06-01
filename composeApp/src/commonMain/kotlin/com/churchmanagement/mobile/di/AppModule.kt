@@ -7,6 +7,7 @@ import com.churchmanagement.mobile.data.EventRepository
 import com.churchmanagement.mobile.data.ForumRepository
 import com.churchmanagement.mobile.data.LeaderRepository
 import com.churchmanagement.mobile.data.LiveStreamRepository
+import com.churchmanagement.mobile.data.MemberRepository
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.data.PrayerRepository
 import com.churchmanagement.mobile.data.ProjectRepository
@@ -30,6 +31,7 @@ val appModule = module {
     single { ProjectRepository(get()) }
     single { LiveStreamRepository(get()) }
     single { LeaderRepository(get()) }
+    single { MemberRepository(get()) }
     single { PrayerRepository(get()) }
     single { SettingsRepository(get()) }
     single { UserRepository(get()) }

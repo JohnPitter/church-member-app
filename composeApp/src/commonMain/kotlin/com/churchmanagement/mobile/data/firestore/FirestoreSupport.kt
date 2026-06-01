@@ -19,6 +19,7 @@ object Collections {
     const val PRAYER_REQUESTS = "prayerRequests"
     const val SETTINGS = "settings"
     const val SETTINGS_DOC_CHURCH = "church"
+    const val MEMBERS = "members"
 }
 
 fun Timestamp.toInstant(): Instant =

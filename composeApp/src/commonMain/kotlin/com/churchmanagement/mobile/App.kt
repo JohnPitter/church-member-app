@@ -37,6 +37,7 @@ import com.churchmanagement.mobile.platform.ConnectivityObserver
 import com.churchmanagement.mobile.platform.Notifier
 import com.churchmanagement.mobile.platform.PushTokenProvider
 import com.churchmanagement.mobile.feature.auth.LoginScreen
+import com.churchmanagement.mobile.feature.birthdays.BirthdaysScreen
 import com.churchmanagement.mobile.feature.blog.BlogDetailScreen
 import com.churchmanagement.mobile.feature.blog.BlogScreen
 import com.churchmanagement.mobile.feature.forum.ForumScreen
@@ -184,6 +185,7 @@ private fun MainScaffold(user: AppUser) {
                     onOpenLives = { navigator.push(Screen.Lives) },
                     onOpenLeadership = { navigator.push(Screen.Leadership) },
                     onOpenPrayer = { navigator.push(Screen.Prayer) },
+                    onOpenBirthdays = { navigator.push(Screen.Birthdays) },
                 )
                 Screen.Events -> EventsScreen(
                     onOpenEvent = { navigator.push(Screen.EventDetail(it)) },
@@ -203,6 +205,7 @@ private fun MainScaffold(user: AppUser) {
                 Screen.Lives -> LivesScreen()
                 Screen.Leadership -> LeadershipScreen()
                 Screen.Prayer -> PrayerScreen()
+                Screen.Birthdays -> BirthdaysScreen()
                 is Screen.EventDetail -> EventDetailScreen(eventId = screen.id)
                 is Screen.DevotionalDetail -> DevotionalDetailScreen(devotionalId = screen.id)
                 is Screen.BlogDetail -> BlogDetailScreen(postId = screen.id)
@@ -240,6 +243,7 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.Leadership -> "Liderança"
     Screen.Prayer -> "Pedidos de Oração"
     Screen.NewTopic -> "Novo tópico"
+    Screen.Birthdays -> "Aniversariantes"
     is Screen.EventDetail -> "Evento"
     is Screen.DevotionalDetail -> "Devocional"
     is Screen.BlogDetail -> "Publicação"

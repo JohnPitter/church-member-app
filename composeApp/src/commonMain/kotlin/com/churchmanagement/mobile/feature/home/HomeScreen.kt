@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Diversity3
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Groups
@@ -58,6 +59,7 @@ fun HomeScreen(
     onOpenLives: () -> Unit,
     onOpenLeadership: () -> Unit,
     onOpenPrayer: () -> Unit,
+    onOpenBirthdays: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val eventRepo: EventRepository = koinInject()
@@ -129,6 +131,7 @@ fun HomeScreen(
             Shortcut("Transmissões", Icons.Outlined.LiveTv, onOpenLives),
             Shortcut("Liderança", Icons.Outlined.Groups, onOpenLeadership),
             Shortcut("Oração", Icons.Outlined.VolunteerActivism, onOpenPrayer),
+            Shortcut("Aniversários", Icons.Outlined.Cake, onOpenBirthdays),
         )
         items(shortcuts.chunked(2)) { rowItems ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

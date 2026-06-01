@@ -28,6 +28,7 @@ sealed interface Screen {
     data object Leadership : Screen
     data object Prayer : Screen
     data object NewTopic : Screen
+    data object Birthdays : Screen
 
     data class EventDetail(val id: String) : Screen
     data class DevotionalDetail(val id: String) : Screen
