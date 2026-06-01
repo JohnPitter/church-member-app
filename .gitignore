@@ -10,6 +10,11 @@ local.properties
 *.aab
 .cxx/
 
+# Assinatura (NUNCA versionar — fazer backup à parte)
+keystore.properties
+*.jks
+*.keystore
+
 # Firebase config (secrets — each dev downloads their own)
 google-services.json
 GoogleService-Info.plist
