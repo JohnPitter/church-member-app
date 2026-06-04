@@ -5,13 +5,13 @@ import com.churchmanagement.mobile.data.firestore.toInstant
 import com.churchmanagement.mobile.data.model.DevotionalDto
 import com.churchmanagement.mobile.domain.Devotional
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class DevotionalRepository(private val firestore: FirebaseFirestore) {
 
-    /** Devocionais publicados, mais recentes primeiro. */
-    fun observePublished(limit: Int? = null): Flow<List<Devotional>> =
+    /** Devocionais publicados, mais recentes primeiro (StateFlow quente). `null` = carregando. */
+    fun observePublished(limit: Int? = null): StateFlow<List<Devotional>?> =
         firestore.collection(Collections.DEVOTIONALS).snapshots.map { snapshot ->
             val items = snapshot.documents
                 .mapNotNull { doc ->
@@ -23,7 +23,7 @@ class DevotionalRepository(private val firestore: FirebaseFirestore) {
                 .filter { it.publishDate != null }
                 .sortedByDescending { it.publishDate }
             if (limit != null) items.take(limit) else items
-        }
+        }.sharedState("devotionals:$limit")
 }
 
 private fun DevotionalDto.toDomain(id: String) = Devotional(

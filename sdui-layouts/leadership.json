@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "leadership",
+  "title": "Liderança",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "leaders", "emptyText": "Nenhum líder cadastrado." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "children": [
+        { "type": "image", "props": { "url": "{{item.imageUrl}}", "height": 160, "cornerRadius": 12 } },
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.role}}", "style": "labelMedium" } },
+        { "type": "text", "props": { "text": "{{item.bio}}", "style": "bodySmall" } }
+      ]
+    }
+  }
+}

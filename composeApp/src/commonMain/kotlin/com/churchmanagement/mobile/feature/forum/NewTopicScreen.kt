@@ -43,7 +43,7 @@ fun NewTopicScreen(onCreated: () -> Unit, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
 
     val categoriesFlow = remember { repo.observeCategories() }
-    val categories by categoriesFlow.collectAsState(initial = emptyList())
+    val categories = categoriesFlow.collectAsState().value.orEmpty()
 
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }

@@ -5,17 +5,16 @@ import com.churchmanagement.mobile.data.firestore.toInstant
 import com.churchmanagement.mobile.data.model.NotificationDto
 import com.churchmanagement.mobile.domain.NotificationItem
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class NotificationRepository(private val firestore: FirebaseFirestore) {
 
     /**
-     * Notificações destinadas ao usuário (ou broadcasts sem destinatário), mais recentes
-     * primeiro. As regras do Firestore permitem que membros aprovados leiam a coleção;
-     * a filtragem por destinatário é feita no cliente.
+     * Notificações destinadas ao usuário (ou broadcasts sem destinatário), recentes primeiro
+     * (StateFlow quente). `null` = carregando. A filtragem por destinatário é feita no cliente.
      */
-    fun observeForUser(userId: String): Flow<List<NotificationItem>> =
+    fun observeForUser(userId: String): StateFlow<List<NotificationItem>?> =
         firestore.collection(Collections.NOTIFICATIONS).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -25,10 +24,7 @@ class NotificationRepository(private val firestore: FirebaseFirestore) {
                     }.getOrNull()
                 }
                 .sortedByDescending { it.createdAt }
-        }
-
-    fun observeUnreadCount(userId: String): Flow<Int> =
-        observeForUser(userId).map { list -> list.count { it.isUnread } }
+        }.sharedState("notifications:$userId")
 }
 
 private fun NotificationDto.toDomain(id: String) = NotificationItem(

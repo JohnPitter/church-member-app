@@ -13,13 +13,13 @@ import com.churchmanagement.mobile.domain.ForumReply
 import com.churchmanagement.mobile.domain.ForumTopic
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.Timestamp
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class ForumRepository(private val firestore: FirebaseFirestore) {
 
-    /** Tópicos do fórum: fixados primeiro, depois mais recentes. */
-    fun observeTopics(): Flow<List<ForumTopic>> =
+    /** Tópicos do fórum: fixados primeiro, depois mais recentes (StateFlow quente). `null` = carregando. */
+    fun observeTopics(): StateFlow<List<ForumTopic>?> =
         firestore.collection(Collections.FORUM_TOPICS).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -29,10 +29,10 @@ class ForumRepository(private val firestore: FirebaseFirestore) {
                     compareByDescending<ForumTopic> { it.isPinned }
                         .thenByDescending { it.createdAt }
                 )
-        }
+        }.sharedState("forumTopics")
 
-    /** Categorias ativas do fórum, na ordem de exibição. */
-    fun observeCategories(): Flow<List<ForumCategory>> =
+    /** Categorias ativas do fórum, na ordem de exibição (StateFlow quente). `null` = carregando. */
+    fun observeCategories(): StateFlow<List<ForumCategory>?> =
         firestore.collection(Collections.FORUM_CATEGORIES).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -41,7 +41,7 @@ class ForumRepository(private val firestore: FirebaseFirestore) {
                 .filter { (_, dto) -> dto.isActive }
                 .sortedBy { (_, dto) -> dto.displayOrder }
                 .map { (id, dto) -> ForumCategory(id = id, name = dto.name, color = dto.color) }
-        }
+        }.sharedState("forumCategories")
 
     /** Cria um novo tópico. Reembute a categoria escolhida (como o web faz). */
     suspend fun addTopic(categoryId: String, title: String, content: String, author: AppUser) {
@@ -79,8 +79,8 @@ class ForumRepository(private val firestore: FirebaseFirestore) {
         firestore.collection(Collections.FORUM_REPLIES).add(dto)
     }
 
-    /** Respostas de um tópico, mais antigas primeiro. */
-    fun observeReplies(topicId: String): Flow<List<ForumReply>> =
+    /** Respostas de um tópico, mais antigas primeiro (StateFlow quente). `null` = carregando. */
+    fun observeReplies(topicId: String): StateFlow<List<ForumReply>?> =
         firestore.collection(Collections.FORUM_REPLIES).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -90,7 +90,7 @@ class ForumRepository(private val firestore: FirebaseFirestore) {
                     }.getOrNull()
                 }
                 .sortedBy { it.createdAt }
-        }
+        }.sharedState("forumReplies:$topicId")
 }
 
 private fun ForumTopicDto.toDomain(id: String) = ForumTopic(

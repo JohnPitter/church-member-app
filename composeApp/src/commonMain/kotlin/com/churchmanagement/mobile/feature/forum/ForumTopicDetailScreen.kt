@@ -50,8 +50,8 @@ fun ForumTopicDetailScreen(topicId: String, modifier: Modifier = Modifier) {
 
     val topicsFlow = remember { repo.observeTopics() }
     val repliesFlow = remember(topicId) { repo.observeReplies(topicId) }
-    val topics by topicsFlow.collectAsState(initial = null)
-    val replies by repliesFlow.collectAsState(initial = emptyList())
+    val topics by topicsFlow.collectAsState()
+    val replies = repliesFlow.collectAsState().value.orEmpty()
 
     when (val list = topics) {
         null -> LoadingBox(modifier)

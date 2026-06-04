@@ -34,7 +34,7 @@ import org.koin.compose.koinInject
 fun NotificationsScreen(userId: String, modifier: Modifier = Modifier) {
     val repo: NotificationRepository = koinInject()
     val flow = remember(userId) { repo.observeForUser(userId) }
-    val notifications by flow.collectAsState(initial = null)
+    val notifications by flow.collectAsState()
 
     when (val list = notifications) {
         null -> ListSkeleton(modifier)

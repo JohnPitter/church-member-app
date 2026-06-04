@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Diversity3
 import androidx.compose.material.icons.outlined.Forum
@@ -70,6 +71,7 @@ fun HomeScreen(
     onOpenLeadership: () -> Unit,
     onOpenPrayer: () -> Unit,
     onOpenBirthdays: () -> Unit,
+    onOpenDynamic: (id: String, title: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val eventRepo: EventRepository = koinInject()
@@ -81,9 +83,9 @@ fun HomeScreen(
     val devotionalsFlow = remember { devotionalRepo.observePublished(limit = 1) }
     val birthdaysFlow = remember { memberRepo.observeBirthdays(today.monthNumber) }
 
-    val events by eventsFlow.collectAsState(initial = null)
-    val devotionals by devotionalsFlow.collectAsState(initial = null)
-    val birthdays by birthdaysFlow.collectAsState(initial = emptyList())
+    val events by eventsFlow.collectAsState()
+    val devotionals by devotionalsFlow.collectAsState()
+    val birthdays = birthdaysFlow.collectAsState().value.orEmpty()
     val brush = shimmerBrush()
 
     LazyColumn(
@@ -156,6 +158,7 @@ fun HomeScreen(
             Shortcut("Liderança", Icons.Outlined.Groups, onOpenLeadership),
             Shortcut("Oração", Icons.Outlined.VolunteerActivism, onOpenPrayer),
             Shortcut("Aniversários", Icons.Outlined.Cake, onOpenBirthdays),
+            Shortcut("Novidades", Icons.Outlined.AutoAwesome) { onOpenDynamic("novidades", "Novidades") },
         )
         items(shortcuts.chunked(2)) { rowItems ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

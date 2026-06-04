@@ -101,6 +101,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Gera BuildConfig (usado pelo gating de versão do SDUI: appVersionCode).
+    buildFeatures {
+        buildConfig = true
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {

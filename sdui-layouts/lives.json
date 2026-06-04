@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "lives",
+  "title": "Transmissões",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "lives", "emptyText": "Nenhuma transmissão disponível." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 6 },
+      "action": { "type": "openUrl", "url": "{{item.streamUrl}}" },
+      "children": [
+        { "type": "image", "props": { "url": "{{item.thumbnailUrl}}", "height": 160, "cornerRadius": 12 } },
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.scheduledDate}}", "style": "labelSmall" } },
+        { "type": "button", "props": { "text": "Assistir" }, "action": { "type": "openUrl", "url": "{{item.streamUrl}}" } }
+      ]
+    }
+  }
+}

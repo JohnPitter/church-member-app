@@ -13,6 +13,9 @@ import com.churchmanagement.mobile.data.PrayerRepository
 import com.churchmanagement.mobile.data.ProjectRepository
 import com.churchmanagement.mobile.data.SettingsRepository
 import com.churchmanagement.mobile.data.UserRepository
+import com.churchmanagement.mobile.sdui.data.AppConfigRepository
+import com.churchmanagement.mobile.sdui.data.DataResolver
+import com.churchmanagement.mobile.sdui.data.LayoutRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
@@ -35,4 +38,7 @@ val appModule = module {
     single { PrayerRepository(get()) }
     single { SettingsRepository(get()) }
     single { UserRepository(get()) }
+    single { LayoutRepository(get()) }
+    single { AppConfigRepository(get()) }
+    single { DataResolver(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }

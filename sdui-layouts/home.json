@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "home",
+  "title": "Início",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 16 },
+    "children": [
+      { "type": "text", "props": { "text": "Olá, {{user.firstName}} 👋", "style": "headlineSmall" } },
+      {
+        "type": "list",
+        "props": { "source": "devotionals", "limit": 1, "spacing": 12 },
+        "itemTemplate": {
+          "type": "card",
+          "props": { "padding": 20, "spacing": 6 },
+          "action": { "type": "navigate", "screen": "devotionalDetail", "param": "{{item.id}}" },
+          "children": [
+            { "type": "text", "props": { "text": "DEVOCIONAL DO DIA", "style": "labelSmall" } },
+            { "type": "text", "props": { "text": "{{item.title}}", "style": "titleLarge" } },
+            { "type": "text", "props": { "text": "{{item.bibleVerse}}", "style": "bodyMedium" } }
+          ]
+        }
+      },
+      {
+        "type": "list",
+        "props": { "source": "birthdays", "orientation": "horizontal", "itemWidth": 150, "spacing": 12, "header": "Aniversariantes de {{month}} 🎂" },
+        "itemTemplate": {
+          "type": "card",
+          "props": { "padding": 12, "spacing": 6, "align": "center" },
+          "children": [
+            { "type": "avatar", "props": { "name": "{{item.title}}", "photoUrl": "{{item.imageUrl}}", "size": 56 } },
+            { "type": "text", "props": { "text": "{{item.title}}", "style": "labelLarge", "align": "center", "maxLines": 2, "height": 40 } },
+            { "type": "text", "props": { "text": "{{item.dayLabel}}", "style": "labelMedium", "align": "center" } },
+            { "type": "whatsapp", "props": { "phone": "{{item.phone}}" } }
+          ]
+        }
+      },
+      {
+        "type": "sectionHeader",
+        "props": { "title": "Próximos eventos", "actionLabel": "Ver todos" },
+        "action": { "type": "navigate", "screen": "dynamic:events" }
+      },
+      {
+        "type": "list",
+        "props": { "source": "events", "limit": 3, "spacing": 12, "emptyText": "Nenhum evento agendado no momento." },
+        "itemTemplate": {
+          "type": "card",
+          "props": { "padding": 16, "spacing": 4 },
+          "action": { "type": "navigate", "screen": "eventDetail", "param": "{{item.id}}" },
+          "children": [
+            { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+            { "type": "text", "props": { "text": "{{item.date}} · {{item.time}}", "style": "bodySmall" } },
+            { "type": "text", "props": { "text": "{{item.location}}", "style": "bodySmall" } }
+          ]
+        }
+      },
+      { "type": "sectionHeader", "props": { "title": "Acesse também" } },
+      {
+        "type": "grid",
+        "props": { "columns": 2, "spacing": 12 },
+        "children": [
+          { "type": "iconCard", "props": { "label": "Blog", "icon": "article" }, "action": { "type": "navigate", "screen": "dynamic:blog" } },
+          { "type": "iconCard", "props": { "label": "Fórum", "icon": "forum" }, "action": { "type": "navigate", "screen": "dynamic:forum" } },
+          { "type": "iconCard", "props": { "label": "Projetos", "icon": "projects" }, "action": { "type": "navigate", "screen": "dynamic:projects" } },
+          { "type": "iconCard", "props": { "label": "Transmissões", "icon": "live" }, "action": { "type": "navigate", "screen": "dynamic:lives" } },
+          { "type": "iconCard", "props": { "label": "Liderança", "icon": "groups" }, "action": { "type": "navigate", "screen": "dynamic:leadership" } },
+          { "type": "iconCard", "props": { "label": "Oração", "icon": "prayer" }, "action": { "type": "navigate", "screen": "prayer" } },
+          { "type": "iconCard", "props": { "label": "Aniversários", "icon": "cake" }, "action": { "type": "navigate", "screen": "birthdays" } }
+        ]
+      }
+    ]
+  }
+}

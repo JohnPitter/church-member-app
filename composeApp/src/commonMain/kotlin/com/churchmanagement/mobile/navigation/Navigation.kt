@@ -30,6 +30,9 @@ sealed interface Screen {
     data object NewTopic : Screen
     data object Birthdays : Screen
 
+    /** Tela renderizada por um layout server-driven (`appScreens/{id}`). */
+    data class Dynamic(val id: String, val title: String = "") : Screen
+
     data class EventDetail(val id: String) : Screen
     data class DevotionalDetail(val id: String) : Screen
     data class BlogDetail(val id: String) : Screen
@@ -60,10 +63,10 @@ class Navigator(start: Screen = Screen.Home) {
         current = screen
     }
 
-    /** Troca de aba: limpa a pilha de detalhes. */
-    fun selectTab(tab: Tab) {
+    /** Define a tela-raiz de uma aba (limpa a pilha de detalhes). */
+    fun selectRoot(screen: Screen) {
         backStack.clear()
-        current = tab.screen
+        current = screen
     }
 
     fun back(): Boolean {
@@ -71,7 +74,32 @@ class Navigator(start: Screen = Screen.Home) {
         current = backStack.removeAt(backStack.lastIndex)
         return true
     }
+}
 
-    /** A aba ativa correspondente ao destino atual (null em telas de detalhe). */
-    val activeTab: Tab? get() = Tab.entries.firstOrNull { it.screen == current }
+/**
+ * Mapeia uma rota declarativa (vinda de uma ação no JSON do SDUI) para um destino.
+ * `"dynamic:<id>"` abre outra tela server-driven; rotas de detalhe usam [param] (ex.: id do item);
+ * rotas desconhecidas retornam null (ignoradas).
+ */
+fun screenForRoute(route: String, param: String? = null): Screen? = when {
+    route.startsWith("dynamic:") -> Screen.Dynamic(route.removePrefix("dynamic:"))
+    route == "home" -> Screen.Home
+    route == "events" -> Screen.Events
+    route == "devotionals" -> Screen.Devotionals
+    route == "notifications" -> Screen.Notifications
+    route == "profile" -> Screen.Profile
+    route == "blog" -> Screen.Blog
+    route == "forum" -> Screen.Forum
+    route == "projects" -> Screen.Projects
+    route == "lives" -> Screen.Lives
+    route == "leadership" -> Screen.Leadership
+    route == "prayer" -> Screen.Prayer
+    route == "birthdays" -> Screen.Birthdays
+    route == "newTopic" -> Screen.NewTopic
+    route == "eventDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.EventDetail(it) }
+    route == "devotionalDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.DevotionalDetail(it) }
+    route == "blogDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.BlogDetail(it) }
+    route == "forumTopicDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.ForumTopicDetail(it) }
+    route == "projectDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.ProjectDetail(it) }
+    else -> null
 }

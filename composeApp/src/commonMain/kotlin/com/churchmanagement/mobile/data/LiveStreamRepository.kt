@@ -5,13 +5,13 @@ import com.churchmanagement.mobile.data.firestore.toInstant
 import com.churchmanagement.mobile.data.model.LiveStreamDto
 import com.churchmanagement.mobile.domain.LiveStream
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class LiveStreamRepository(private val firestore: FirebaseFirestore) {
 
-    /** Transmissões não canceladas: ao vivo primeiro, depois agendadas mais recentes. */
-    fun observeStreams(): Flow<List<LiveStream>> =
+    /** Transmissões não canceladas: ao vivo primeiro, depois agendadas (StateFlow quente). `null` = carregando. */
+    fun observeStreams(): StateFlow<List<LiveStream>?> =
         firestore.collection(Collections.LIVE_STREAMS).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -24,7 +24,7 @@ class LiveStreamRepository(private val firestore: FirebaseFirestore) {
                     compareByDescending<LiveStream> { it.isLive }
                         .thenByDescending { it.scheduledDate }
                 )
-        }
+        }.sharedState("lives")
 }
 
 private fun LiveStreamDto.toDomain(id: String) = LiveStream(

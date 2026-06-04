@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "devotionals",
+  "title": "Devocionais",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "devotionals", "emptyText": "Nenhum devocional publicado." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "action": { "type": "navigate", "screen": "devotionalDetail", "param": "{{item.id}}" },
+      "children": [
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.bibleReference}}", "style": "labelMedium" } },
+        { "type": "text", "props": { "text": "{{item.bibleVerse}}", "style": "bodySmall" } },
+        { "type": "text", "props": { "text": "por {{item.author}} · {{item.publishDate}}", "style": "labelSmall" } }
+      ]
+    }
+  }
+}

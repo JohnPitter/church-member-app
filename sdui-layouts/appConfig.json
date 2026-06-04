@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "minAppVersion": 0,
+  "tabs": [
+    { "label": "Início", "icon": "home", "screen": "dynamic:home" },
+    { "label": "Eventos", "icon": "calendar", "screen": "dynamic:events" },
+    { "label": "Devoção", "icon": "book", "screen": "dynamic:devotionals" },
+    { "label": "Avisos", "icon": "bell", "screen": "notifications" },
+    { "label": "Perfil", "icon": "person", "screen": "profile" }
+  ]
+}

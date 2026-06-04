@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "projects",
+  "title": "Projetos",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "projects", "emptyText": "Nenhum projeto no momento." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "action": { "type": "navigate", "screen": "projectDetail", "param": "{{item.id}}" },
+      "children": [
+        { "type": "image", "props": { "url": "{{item.imageUrl}}", "height": 140, "cornerRadius": 12 } },
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.description}}", "style": "bodySmall" } },
+        { "type": "text", "props": { "text": "Responsável: {{item.responsible}}", "style": "labelSmall" } }
+      ]
+    }
+  }
+}

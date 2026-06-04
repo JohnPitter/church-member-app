@@ -5,13 +5,13 @@ import com.churchmanagement.mobile.data.firestore.toInstant
 import com.churchmanagement.mobile.data.model.ProjectDto
 import com.churchmanagement.mobile.domain.Project
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class ProjectRepository(private val firestore: FirebaseFirestore) {
 
-    /** Projetos não cancelados, mais recentes primeiro. */
-    fun observeProjects(): Flow<List<Project>> =
+    /** Projetos não cancelados, mais recentes primeiro (StateFlow quente). `null` = carregando. */
+    fun observeProjects(): StateFlow<List<Project>?> =
         firestore.collection(Collections.PROJECTS).snapshots.map { snapshot ->
             snapshot.documents
                 .mapNotNull { doc ->
@@ -21,7 +21,7 @@ class ProjectRepository(private val firestore: FirebaseFirestore) {
                     }.getOrNull()
                 }
                 .sortedByDescending { it.startDate }
-        }
+        }.sharedState("projects")
 }
 
 private fun ProjectDto.toDomain(id: String) = Project(

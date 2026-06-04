@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "blog",
+  "title": "Blog",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "blog", "emptyText": "Nenhuma publicação ainda." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "action": { "type": "navigate", "screen": "blogDetail", "param": "{{item.id}}" },
+      "children": [
+        { "type": "image", "props": { "url": "{{item.featuredImage}}", "height": 140, "cornerRadius": 12 } },
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.excerpt}}", "style": "bodySmall" } },
+        { "type": "text", "props": { "text": "por {{item.authorName}} · {{item.publishedAt}}", "style": "labelSmall" } }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "forum",
+  "title": "Fórum",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "forumTopics", "emptyText": "Nenhum tópico ainda. Que tal começar um?" },
+    "children": [
+      { "type": "button", "props": { "text": "Novo tópico" }, "action": { "type": "navigate", "screen": "newTopic" } }
+    ],
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "action": { "type": "navigate", "screen": "forumTopicDetail", "param": "{{item.id}}" },
+      "children": [
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.categoryName}} · {{item.replyCount}} respostas", "style": "labelSmall" } },
+        { "type": "text", "props": { "text": "por {{item.authorName}} · {{item.createdAt}}", "style": "labelSmall" } }
+      ]
+    }
+  }
+}

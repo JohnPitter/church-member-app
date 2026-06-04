@@ -61,6 +61,14 @@ import com.churchmanagement.mobile.feature.profile.ProfileScreen
 import com.churchmanagement.mobile.navigation.Navigator
 import com.churchmanagement.mobile.navigation.Screen
 import com.churchmanagement.mobile.navigation.Tab
+import com.churchmanagement.mobile.navigation.screenForRoute
+import com.churchmanagement.mobile.sdui.data.AppConfigRepository
+import com.churchmanagement.mobile.sdui.feature.DynamicScreen
+import com.churchmanagement.mobile.sdui.model.AppConfigSpec
+import com.churchmanagement.mobile.sdui.model.UiAction
+import com.churchmanagement.mobile.sdui.render.sduiIcon
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import com.churchmanagement.mobile.ui.theme.AppTheme
 import com.churchmanagement.mobile.ui.theme.DefaultPrimary
 import com.churchmanagement.mobile.ui.theme.DefaultSecondary
@@ -112,6 +120,7 @@ fun App() {
             val uid = user?.uid ?: return@LaunchedEffect
             var baseline: Set<String>? = null
             notificationRepo.observeForUser(uid).collect { list ->
+                if (list == null) return@collect // ainda carregando
                 val unreadIds = list.filter { it.isUnread }.map { it.id }.toSet()
                 val known = baseline
                 if (known == null) {
@@ -143,6 +152,33 @@ private fun MainScaffold(user: AppUser) {
     val navigator = remember { Navigator(Screen.Home) }
     val connectivity: ConnectivityObserver = koinInject()
     val online by connectivity.isOnline.collectAsState()
+    val uriHandler = LocalUriHandler.current
+
+    // Dispatcher de ações declaradas no JSON do SDUI (navegação, links externos, voltar).
+    val dispatch: (UiAction) -> Unit = { action ->
+        when (action.type) {
+            "navigate" -> action.screen
+                ?.let { screenForRoute(it, action.param) }
+                ?.let { navigator.push(it) }
+            "openUrl" -> action.url?.let { if (isSafeUrl(it)) uriHandler.openUri(it) }
+            "back" -> navigator.back()
+            else -> {}
+        }
+    }
+
+    // Shell server-driven: abas vêm de appConfig; null = abas nativas padrão (fallback).
+    val configRepo: AppConfigRepository = koinInject()
+    val config by remember { configRepo.observeConfig() }.collectAsState(initial = null)
+    val tabs = remember(config) { resolveTabs(config) }
+
+    // Ao chegar um appConfig real, adota a 1ª aba como raiz (se o usuário ainda não navegou).
+    LaunchedEffect(config) {
+        val cfg = config ?: return@LaunchedEffect
+        val resolved = resolveTabs(cfg)
+        if (resolved.isNotEmpty() && !navigator.canGoBack && resolved.none { it.target == navigator.current }) {
+            navigator.selectRoot(resolved.first().target)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -159,10 +195,10 @@ private fun MainScaffold(user: AppUser) {
         },
         bottomBar = {
             NavigationBar {
-                Tab.entries.forEach { tab ->
+                tabs.forEach { tab ->
                     NavigationBarItem(
-                        selected = navigator.activeTab == tab,
-                        onClick = { navigator.selectTab(tab) },
+                        selected = navigator.current == tab.target,
+                        onClick = { navigator.selectRoot(tab.target) },
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
                         label = { Text(tab.label) },
                     )
@@ -174,38 +210,25 @@ private fun MainScaffold(user: AppUser) {
             if (!online) OfflineBanner()
             Box(Modifier.fillMaxSize()) {
             when (val screen = navigator.current) {
-                Screen.Home -> HomeScreen(
-                    user = user,
-                    onOpenEvent = { navigator.push(Screen.EventDetail(it)) },
-                    onOpenDevotional = { navigator.push(Screen.DevotionalDetail(it)) },
-                    onSeeAllEvents = { navigator.selectTab(Tab.EVENTS) },
-                    onOpenBlog = { navigator.push(Screen.Blog) },
-                    onOpenForum = { navigator.push(Screen.Forum) },
-                    onOpenProjects = { navigator.push(Screen.Projects) },
-                    onOpenLives = { navigator.push(Screen.Lives) },
-                    onOpenLeadership = { navigator.push(Screen.Leadership) },
-                    onOpenPrayer = { navigator.push(Screen.Prayer) },
-                    onOpenBirthdays = { navigator.push(Screen.Birthdays) },
-                )
-                Screen.Events -> EventsScreen(
-                    onOpenEvent = { navigator.push(Screen.EventDetail(it)) },
-                )
-                Screen.Devotionals -> DevotionalsScreen(
-                    onOpenDevotional = { navigator.push(Screen.DevotionalDetail(it)) },
-                )
+                Screen.Home -> NativeHome(user, navigator)
+                Screen.Events -> NativeEvents(navigator)
+                Screen.Devotionals -> NativeDevotionals(navigator)
                 Screen.Notifications -> NotificationsScreen(userId = user.uid)
                 Screen.Profile -> ProfileScreen(user = user)
-                Screen.Blog -> BlogScreen(onOpenPost = { navigator.push(Screen.BlogDetail(it)) })
-                Screen.Forum -> ForumScreen(
-                    onOpenTopic = { navigator.push(Screen.ForumTopicDetail(it)) },
-                    onNewTopic = { navigator.push(Screen.NewTopic) },
-                )
+                Screen.Blog -> NativeBlog(navigator)
+                Screen.Forum -> NativeForum(navigator)
                 Screen.NewTopic -> NewTopicScreen(onCreated = { navigator.back() })
-                Screen.Projects -> ProjectsScreen(onOpenProject = { navigator.push(Screen.ProjectDetail(it)) })
+                Screen.Projects -> NativeProjects(navigator)
                 Screen.Lives -> LivesScreen()
                 Screen.Leadership -> LeadershipScreen()
                 Screen.Prayer -> PrayerScreen()
                 Screen.Birthdays -> BirthdaysScreen()
+                is Screen.Dynamic -> DynamicScreen(
+                    screenId = screen.id,
+                    user = user,
+                    onAction = dispatch,
+                    fallback = nativeFallbackFor(screen.id, user, navigator),
+                )
                 is Screen.EventDetail -> EventDetailScreen(eventId = screen.id)
                 is Screen.DevotionalDetail -> DevotionalDetailScreen(devotionalId = screen.id)
                 is Screen.BlogDetail -> BlogDetailScreen(postId = screen.id)
@@ -215,6 +238,71 @@ private fun MainScaffold(user: AppUser) {
             }
         }
     }
+}
+
+// ---- Telas nativas (reusadas tanto como destino quanto como fallback de telas dinâmicas) ----
+
+@Composable
+private fun NativeHome(user: AppUser, navigator: Navigator) {
+    HomeScreen(
+        user = user,
+        onOpenEvent = { navigator.push(Screen.EventDetail(it)) },
+        onOpenDevotional = { navigator.push(Screen.DevotionalDetail(it)) },
+        onSeeAllEvents = { navigator.selectRoot(Screen.Events) },
+        onOpenBlog = { navigator.push(Screen.Blog) },
+        onOpenForum = { navigator.push(Screen.Forum) },
+        onOpenProjects = { navigator.push(Screen.Projects) },
+        onOpenLives = { navigator.push(Screen.Lives) },
+        onOpenLeadership = { navigator.push(Screen.Leadership) },
+        onOpenPrayer = { navigator.push(Screen.Prayer) },
+        onOpenBirthdays = { navigator.push(Screen.Birthdays) },
+        onOpenDynamic = { id, title -> navigator.push(Screen.Dynamic(id, title)) },
+    )
+}
+
+@Composable
+private fun NativeEvents(navigator: Navigator) {
+    EventsScreen(onOpenEvent = { navigator.push(Screen.EventDetail(it)) })
+}
+
+@Composable
+private fun NativeDevotionals(navigator: Navigator) {
+    DevotionalsScreen(onOpenDevotional = { navigator.push(Screen.DevotionalDetail(it)) })
+}
+
+@Composable
+private fun NativeBlog(navigator: Navigator) {
+    BlogScreen(onOpenPost = { navigator.push(Screen.BlogDetail(it)) })
+}
+
+@Composable
+private fun NativeForum(navigator: Navigator) {
+    ForumScreen(
+        onOpenTopic = { navigator.push(Screen.ForumTopicDetail(it)) },
+        onNewTopic = { navigator.push(Screen.NewTopic) },
+    )
+}
+
+@Composable
+private fun NativeProjects(navigator: Navigator) {
+    ProjectsScreen(onOpenProject = { navigator.push(Screen.ProjectDetail(it)) })
+}
+
+/** Fallback nativo para uma tela dinâmica indisponível (degradação graciosa da migração). */
+private fun nativeFallbackFor(
+    id: String,
+    user: AppUser,
+    navigator: Navigator,
+): (@Composable () -> Unit)? = when (id) {
+    "home" -> { { NativeHome(user, navigator) } }
+    "events" -> { { NativeEvents(navigator) } }
+    "devotionals" -> { { NativeDevotionals(navigator) } }
+    "blog" -> { { NativeBlog(navigator) } }
+    "forum" -> { { NativeForum(navigator) } }
+    "projects" -> { { NativeProjects(navigator) } }
+    "lives" -> { { LivesScreen() } }
+    "leadership" -> { { LeadershipScreen() } }
+    else -> null
 }
 
 @Composable
@@ -230,6 +318,32 @@ private fun OfflineBanner() {
     }
 }
 
+/** Aba resolvida para a barra inferior (label + ícone + destino). */
+private data class ResolvedTab(val label: String, val icon: ImageVector, val target: Screen)
+
+/** Abas nativas padrão (fallback quando não há appConfig). */
+private fun defaultTabs(): List<ResolvedTab> =
+    Tab.entries.map { ResolvedTab(it.label, it.icon, it.screen) }
+
+/** Resolve as abas a partir do appConfig; vazio/inválido cai no padrão nativo. */
+private fun resolveTabs(config: AppConfigSpec?): List<ResolvedTab> {
+    if (config == null) return defaultTabs()
+    val tabs = config.tabs.mapNotNull { spec ->
+        val target = targetForRoute(spec.screen, spec.label) ?: return@mapNotNull null
+        ResolvedTab(label = spec.label, icon = sduiIcon(spec.icon), target = target)
+    }
+    return tabs.ifEmpty { defaultTabs() }
+}
+
+private fun targetForRoute(route: String, label: String): Screen? = when {
+    route.startsWith("dynamic:") -> Screen.Dynamic(route.removePrefix("dynamic:"), label)
+    else -> screenForRoute(route)
+}
+
+/** Só permite abrir links http/https vindos do JSON (evita esquemas perigosos como javascript:). */
+private fun isSafeUrl(url: String): Boolean =
+    url.startsWith("https://") || url.startsWith("http://")
+
 private fun titleFor(screen: Screen): String = when (screen) {
     Screen.Home -> "Início"
     Screen.Events -> "Eventos"
@@ -244,6 +358,7 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.Prayer -> "Pedidos de Oração"
     Screen.NewTopic -> "Novo tópico"
     Screen.Birthdays -> "Aniversariantes"
+    is Screen.Dynamic -> screen.title.ifBlank { "Conteúdo" }
     is Screen.EventDetail -> "Evento"
     is Screen.DevotionalDetail -> "Devocional"
     is Screen.BlogDetail -> "Publicação"

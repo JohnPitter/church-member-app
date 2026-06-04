@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "events",
+  "title": "Eventos",
+  "minAppVersion": 0,
+  "root": {
+    "type": "lazyColumn",
+    "props": { "padding": 16, "spacing": 12, "source": "events", "emptyText": "Nenhum evento agendado." },
+    "itemTemplate": {
+      "type": "card",
+      "props": { "padding": 16, "spacing": 4 },
+      "action": { "type": "navigate", "screen": "eventDetail", "param": "{{item.id}}" },
+      "children": [
+        { "type": "image", "props": { "url": "{{item.imageUrl}}", "height": 140, "cornerRadius": 12 } },
+        { "type": "text", "props": { "text": "{{item.title}}", "style": "titleMedium" } },
+        { "type": "text", "props": { "text": "{{item.date}} · {{item.time}}", "style": "bodySmall" } },
+        { "type": "text", "props": { "text": "{{item.location}}", "style": "bodySmall" } }
+      ]
+    }
+  }
+}

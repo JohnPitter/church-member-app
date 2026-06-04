@@ -28,7 +28,7 @@ import org.koin.compose.koinInject
 fun EventDetailScreen(eventId: String, modifier: Modifier = Modifier) {
     val repo: EventRepository = koinInject()
     val flow = remember { repo.observeEvents() }
-    val events by flow.collectAsState(initial = null)
+    val events by flow.collectAsState()
 
     when (val list = events) {
         null -> LoadingBox(modifier)
