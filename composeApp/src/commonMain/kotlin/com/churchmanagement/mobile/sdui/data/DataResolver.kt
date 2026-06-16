@@ -27,6 +27,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -57,7 +58,13 @@ class DataResolver(
 
     fun stream(source: String, limit: Int?, userId: String?): StateFlow<List<Map<String, String>>?> =
         streams.getOrPut(key(source, limit, userId)) {
-            base(source, limit, userId).stateIn(scope, SharingStarted.Eagerly, null)
+            base(source, limit, userId)
+                // Erro no listener (ex.: PERMISSION_DENIED) → null (sem dados), sem crashar.
+                .catch { e ->
+                    SduiLog.e("Fonte '$source' falhou", e)
+                    emit(null)
+                }
+                .stateIn(scope, SharingStarted.Eagerly, null)
         }
 
     // `null` é propagado como "ainda carregando"; lista preenchida = pronto.

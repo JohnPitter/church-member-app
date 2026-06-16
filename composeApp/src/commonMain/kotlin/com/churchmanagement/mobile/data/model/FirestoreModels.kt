@@ -22,6 +22,28 @@ data class EventDto(
     val responsible: String = "",
     val status: String = "scheduled",
     val isPublic: Boolean = false,
+    val requiresConfirmation: Boolean = false,
+    val maxParticipants: Int? = null,
+)
+
+/** Documento de `eventConfirmations` (leitura). Espelha o schema do web. */
+@Serializable
+data class EventConfirmationDto(
+    val eventId: String = "",
+    val userId: String = "",
+    val userName: String = "",
+    val status: String = "confirmed",
+    val confirmedAt: Timestamp? = null,
+)
+
+/** Criação/atualização de confirmação de presença a partir do app. */
+@Serializable
+data class CreateEventConfirmationDto(
+    val eventId: String,
+    val userId: String,
+    val userName: String,
+    val status: String = "confirmed",
+    val confirmedAt: Timestamp,
 )
 
 @Serializable

@@ -40,6 +40,18 @@ data class Event(
     val streamingUrl: String?,
     val responsible: String,
     val status: String,
+    val requiresConfirmation: Boolean,
+    val maxParticipants: Int?,
+)
+
+/** Confirmação de presença de um membro num evento (coleção `eventConfirmations`, compartilhada com o web). */
+data class EventConfirmation(
+    val id: String,
+    val eventId: String,
+    val userId: String,
+    val userName: String,
+    val status: String,
+    val confirmedAt: Instant?,
 )
 
 data class Devotional(

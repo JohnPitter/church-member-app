@@ -6,6 +6,7 @@ import com.churchmanagement.mobile.sdui.model.SduiJson
 import com.churchmanagement.mobile.sdui.platform.appVersionCode
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 
@@ -17,10 +18,16 @@ import kotlinx.serialization.Serializable
 class AppConfigRepository(private val firestore: FirebaseFirestore) {
 
     fun observeConfig(): Flow<AppConfigSpec?> =
-        firestore.collection(COLLECTION).document(DOC).snapshots.map { snapshot ->
-            val dto = runCatching { snapshot.data(ConfigDocDto.serializer()) }.getOrNull()
-            parse(dto?.json)
-        }
+        firestore.collection(COLLECTION).document(DOC).snapshots
+            .map { snapshot ->
+                val dto = runCatching { snapshot.data(ConfigDocDto.serializer()) }.getOrNull()
+                parse(dto?.json)
+            }
+            // Erro no listener (ex.: PERMISSION_DENIED) → usa abas nativas, sem crashar.
+            .catch { e ->
+                SduiLog.e("Listener do appConfig falhou", e)
+                emit(null)
+            }
 
     private fun parse(raw: String?): AppConfigSpec? {
         if (raw.isNullOrBlank()) {

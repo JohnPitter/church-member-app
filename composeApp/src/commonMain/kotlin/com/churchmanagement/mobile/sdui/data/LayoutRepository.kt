@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
@@ -43,6 +44,11 @@ class LayoutRepository(private val firestore: FirebaseFirestore) {
                 .map { snapshot ->
                     val dto = runCatching { snapshot.data(ScreenDocDto.serializer()) }.getOrNull()
                     parse(id, dto?.json)
+                }
+                // Erro no listener (ex.: PERMISSION_DENIED) → Unavailable (cai no fallback), sem crashar.
+                .catch { e ->
+                    SduiLog.e("Listener da tela '$id' falhou", e)
+                    emit(LayoutResult.Unavailable)
                 }
                 .stateIn(scope, SharingStarted.Eagerly, null)
         }

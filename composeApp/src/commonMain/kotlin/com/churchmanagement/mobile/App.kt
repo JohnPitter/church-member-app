@@ -229,7 +229,7 @@ private fun MainScaffold(user: AppUser) {
                     onAction = dispatch,
                     fallback = nativeFallbackFor(screen.id, user, navigator),
                 )
-                is Screen.EventDetail -> EventDetailScreen(eventId = screen.id)
+                is Screen.EventDetail -> EventDetailScreen(eventId = screen.id, user = user)
                 is Screen.DevotionalDetail -> DevotionalDetailScreen(devotionalId = screen.id)
                 is Screen.BlogDetail -> BlogDetailScreen(postId = screen.id)
                 is Screen.ForumTopicDetail -> ForumTopicDetailScreen(topicId = screen.id)

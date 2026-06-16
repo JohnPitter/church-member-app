@@ -5,6 +5,7 @@ import com.churchmanagement.mobile.data.model.SettingsDto
 import com.churchmanagement.mobile.domain.OrgSettings
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class SettingsRepository(private val firestore: FirebaseFirestore) {
@@ -18,6 +19,8 @@ class SettingsRepository(private val firestore: FirebaseFirestore) {
                 runCatching { snapshot.data(SettingsDto.serializer()).toDomain() }
                     .getOrDefault(OrgSettings.DEFAULT)
             }
+            // Erro no listener nunca derruba o app — usa o padrão.
+            .catch { emit(OrgSettings.DEFAULT) }
 }
 
 private fun SettingsDto.toDomain() = OrgSettings(

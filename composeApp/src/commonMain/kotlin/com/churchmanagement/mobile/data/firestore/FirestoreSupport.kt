@@ -17,6 +17,7 @@ object Collections {
     const val LIVE_STREAMS = "liveStreams"
     const val LEADERS = "leaders"
     const val PRAYER_REQUESTS = "prayerRequests"
+    const val EVENT_CONFIRMATIONS = "eventConfirmations"
     const val SETTINGS = "settings"
     const val SETTINGS_DOC_CHURCH = "church"
     const val MEMBERS = "members"

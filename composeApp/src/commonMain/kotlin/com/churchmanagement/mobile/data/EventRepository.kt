@@ -46,4 +46,6 @@ private fun EventDto.toDomain(id: String) = Event(
     streamingUrl = streamingURL,
     responsible = responsible,
     status = status,
+    requiresConfirmation = requiresConfirmation,
+    maxParticipants = maxParticipants,
 )
