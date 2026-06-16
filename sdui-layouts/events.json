@@ -5,7 +5,7 @@
   "minAppVersion": 0,
   "root": {
     "type": "lazyColumn",
-    "props": { "padding": 16, "spacing": 12, "source": "events", "emptyText": "Nenhum evento agendado." },
+    "props": { "padding": 16, "spacing": 12, "source": "events", "filter": "monthYear", "emptyText": "Nenhum evento agendado." },
     "itemTemplate": {
       "type": "card",
       "props": { "padding": 16, "spacing": 4 },

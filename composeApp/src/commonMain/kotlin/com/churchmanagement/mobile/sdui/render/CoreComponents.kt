@@ -18,16 +18,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +52,8 @@ import com.churchmanagement.mobile.ui.ListSkeleton
 import com.churchmanagement.mobile.ui.MemberAvatar
 import com.churchmanagement.mobile.ui.WhatsAppButton
 import com.churchmanagement.mobile.ui.shimmerBrush
+import com.churchmanagement.mobile.util.currentLocalDate
+import com.churchmanagement.mobile.util.monthNamePt
 import org.koin.compose.koinInject
 
 /**
@@ -226,12 +233,87 @@ private fun LazyColumnComponent(node: UiNode, scope: RenderScope) {
 
     when (val list = items) {
         null -> ListSkeleton()
-        else -> if (list.isEmpty() && node.children.isEmpty()) {
+        else -> if (node.props.string("filter") == "monthYear") {
+            MonthYearFilteredList(list, template, scope, padding, spacing)
+        } else if (list.isEmpty() && node.children.isEmpty()) {
             EmptyState(title = node.props.string("emptyText") ?: "Nada por aqui ainda.")
         } else {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = padding, verticalArrangement = spacing) {
                 items(node.children) { child -> RenderNode(child, scope) }
                 items(list, key = { it["id"] ?: "" }) { item -> RenderNode(template, scope.withItem(item)) }
+            }
+        }
+    }
+}
+
+/**
+ * Lista filtrável por mês/ano (props `filter: "monthYear"` no lazyColumn). Cada item precisa
+ * dos campos `year` e `month`. Barra fixa com dois seletores; default = mês/ano atual.
+ */
+@Composable
+private fun MonthYearFilteredList(
+    items: List<Map<String, String>>,
+    template: UiNode,
+    scope: RenderScope,
+    padding: PaddingValues,
+    spacing: Arrangement.HorizontalOrVertical,
+) {
+    val today = remember { currentLocalDate() }
+    val years = remember(items) {
+        items.mapNotNull { it["year"]?.takeIf(String::isNotBlank) }.distinct().sortedDescending()
+    }
+    var year by remember(years) {
+        mutableStateOf(years.firstOrNull { it == today.year.toString() } ?: years.firstOrNull() ?: today.year.toString())
+    }
+    var month by remember { mutableStateOf<Int?>(today.monthNumber) }
+
+    val filtered = items.filter { it["year"] == year && (month == null || it["month"] == month.toString()) }
+
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            FilterDropdown(
+                label = month?.let { monthNamePt(it) } ?: "Todos os meses",
+                options = buildList {
+                    add("Todos os meses" to { month = null })
+                    (1..12).forEach { m -> add(monthNamePt(m) to { month = m }) }
+                },
+                modifier = Modifier.weight(1f),
+            )
+            FilterDropdown(
+                label = year,
+                options = years.map { y -> y to { year = y } },
+                modifier = Modifier.weight(1f),
+            )
+        }
+        if (filtered.isEmpty()) {
+            val label = (month?.let { "${monthNamePt(it)} de " } ?: "") + year
+            EmptyState(title = "Nenhum evento em $label.")
+        } else {
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = padding, verticalArrangement = spacing) {
+                items(filtered, key = { it["id"] ?: "" }) { item -> RenderNode(template, scope.withItem(item)) }
+            }
+        }
+    }
+}
+
+/** Botão que abre um menu suspenso de opções (rótulo + ação). */
+@Composable
+private fun FilterDropdown(
+    label: String,
+    options: List<Pair<String, () -> Unit>>,
+    modifier: Modifier = Modifier,
+) {
+    var open by remember { mutableStateOf(false) }
+    Box(modifier) {
+        OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(label, maxLines = 1)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            options.forEach { (text, action) ->
+                DropdownMenuItem(text = { Text(text) }, onClick = { action(); open = false })
             }
         }
     }

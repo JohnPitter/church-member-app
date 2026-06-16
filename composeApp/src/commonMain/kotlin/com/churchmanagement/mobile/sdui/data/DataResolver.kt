@@ -21,6 +21,8 @@ import com.churchmanagement.mobile.domain.ForumTopic
 import com.churchmanagement.mobile.sdui.SduiLog
 import com.churchmanagement.mobile.util.currentLocalDate
 import com.churchmanagement.mobile.util.toLongDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -93,18 +95,23 @@ class DataResolver(
 
 private fun <T> List<T>.limited(limit: Int?): List<T> = if (limit != null) take(limit) else this
 
-private fun eventFields(e: Event) = mapOf(
-    "id" to e.id,
-    "title" to e.title,
-    "description" to e.description,
-    "time" to e.time,
-    "location" to e.location,
-    "date" to (e.date?.toLongDate() ?: ""),
-    "categoryName" to e.categoryName,
-    "categoryColor" to e.categoryColor,
-    "imageUrl" to (e.imageUrl ?: ""),
-    "responsible" to e.responsible,
-)
+private fun eventFields(e: Event): Map<String, String> {
+    val local = e.date?.toLocalDateTime(TimeZone.currentSystemDefault())
+    return mapOf(
+        "id" to e.id,
+        "title" to e.title,
+        "description" to e.description,
+        "time" to e.time,
+        "location" to e.location,
+        "date" to (e.date?.toLongDate() ?: ""),
+        "year" to (local?.year?.toString() ?: ""),
+        "month" to (local?.monthNumber?.toString() ?: ""),
+        "categoryName" to e.categoryName,
+        "categoryColor" to e.categoryColor,
+        "imageUrl" to (e.imageUrl ?: ""),
+        "responsible" to e.responsible,
+    )
+}
 
 private fun devotionalFields(d: Devotional) = mapOf(
     "id" to d.id,

@@ -37,7 +37,7 @@ class EventRegistrationRepository(private val firestore: FirebaseFirestore) {
         val dto = CreateEventConfirmationDto(
             eventId = eventId,
             userId = user.uid,
-            userName = user.displayName ?: (user.email ?: "Membro"),
+            userName = user.displayName?.takeIf { it.isNotBlank() } ?: user.email ?: "Membro",
             confirmedAt = Timestamp.now(),
         )
         if (existingId != null) {
