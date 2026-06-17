@@ -47,11 +47,9 @@ import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.domain.Birthday
 import com.churchmanagement.mobile.domain.Devotional
 import com.churchmanagement.mobile.feature.events.EventCard
-import com.churchmanagement.mobile.ui.CardSkeleton
+import com.churchmanagement.mobile.ui.ListSkeleton
 import com.churchmanagement.mobile.ui.MemberAvatar
-import com.churchmanagement.mobile.ui.SkeletonBox
 import com.churchmanagement.mobile.ui.WhatsAppButton
-import com.churchmanagement.mobile.ui.shimmerBrush
 import com.churchmanagement.mobile.util.currentLocalDate
 import com.churchmanagement.mobile.util.firstName
 import com.churchmanagement.mobile.util.monthNamePt
@@ -85,8 +83,17 @@ fun HomeScreen(
 
     val events by eventsFlow.collectAsState()
     val devotionals by devotionalsFlow.collectAsState()
-    val birthdays = birthdaysFlow.collectAsState().value.orEmpty()
-    val brush = shimmerBrush()
+    val birthdaysState by birthdaysFlow.collectAsState()
+
+    // Só renderiza quando o conteúdo principal carregou — sem seções aparecendo em momentos diferentes.
+    // Aniversariantes é best-effort (seção opcional): não trava a tela se `members` falhar.
+    val ev = events
+    val dev = devotionals
+    if (ev == null || dev == null) {
+        ListSkeleton(modifier)
+        return
+    }
+    val bd = birthdaysState.orEmpty()
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -100,45 +107,33 @@ fun HomeScreen(
             )
         }
 
-        when (val devs = devotionals) {
-            null -> item {
-                SkeletonBox(
-                    brush = brush,
-                    modifier = Modifier.fillMaxWidth().height(150.dp),
-                    shape = RoundedCornerShape(16.dp),
-                )
-            }
-            else -> devs.firstOrNull()?.let { devotional ->
-                item { DevotionalHighlight(devotional, onClick = { onOpenDevotional(devotional.id) }) }
-            }
+        dev.firstOrNull()?.let { devotional ->
+            item { DevotionalHighlight(devotional, onClick = { onOpenDevotional(devotional.id) }) }
         }
 
-        if (birthdays.isNotEmpty()) {
+        if (bd.isNotEmpty()) {
             item {
                 SectionHeader(
                     title = "Aniversariantes de ${monthNamePt(today.monthNumber)} 🎂",
                     onSeeAll = onOpenBirthdays,
                 )
             }
-            item { BirthdayCarousel(birthdays = birthdays, todayDay = today.dayOfMonth) }
+            item { BirthdayCarousel(birthdays = bd, todayDay = today.dayOfMonth) }
         }
 
         item { SectionHeader(title = "Próximos eventos", onSeeAll = onSeeAllEvents) }
 
-        when (val evs = events) {
-            null -> items(3) { CardSkeleton(brush) }
-            else -> if (evs.isEmpty()) {
-                item {
-                    Text(
-                        text = "Nenhum evento agendado no momento.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                items(evs, key = { it.id }) { event ->
-                    EventCard(event = event, onClick = { onOpenEvent(event.id) })
-                }
+        if (ev.isEmpty()) {
+            item {
+                Text(
+                    text = "Nenhum evento agendado no momento.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else {
+            items(ev, key = { it.id }) { event ->
+                EventCard(event = event, onClick = { onOpenEvent(event.id) })
             }
         }
 

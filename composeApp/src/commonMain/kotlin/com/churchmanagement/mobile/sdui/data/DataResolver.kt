@@ -61,10 +61,11 @@ class DataResolver(
     fun stream(source: String, limit: Int?, userId: String?): StateFlow<List<Map<String, String>>?> =
         streams.getOrPut(key(source, limit, userId)) {
             base(source, limit, userId)
-                // Erro no listener (ex.: PERMISSION_DENIED) → null (sem dados), sem crashar.
+                // Erro no listener (ex.: PERMISSION_DENIED) → lista vazia (= "carregou, sem dados"),
+                // NUNCA null: assim o gate "esperar todos os dados" não fica preso no skeleton.
                 .catch { e ->
                     SduiLog.e("Fonte '$source' falhou", e)
-                    emit(null)
+                    emit(emptyList())
                 }
                 .stateIn(scope, SharingStarted.Eagerly, null)
         }

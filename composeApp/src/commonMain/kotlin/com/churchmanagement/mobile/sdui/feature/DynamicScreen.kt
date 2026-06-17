@@ -5,9 +5,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.churchmanagement.mobile.domain.AppUser
+import com.churchmanagement.mobile.sdui.data.DataResolver
 import com.churchmanagement.mobile.sdui.data.LayoutRepository
 import com.churchmanagement.mobile.sdui.data.LayoutResult
+import com.churchmanagement.mobile.sdui.model.ScreenSpec
 import com.churchmanagement.mobile.sdui.model.UiAction
+import com.churchmanagement.mobile.sdui.model.UiNode
+import com.churchmanagement.mobile.sdui.model.int
+import com.churchmanagement.mobile.sdui.model.string
 import com.churchmanagement.mobile.sdui.render.RenderNode
 import com.churchmanagement.mobile.sdui.render.RenderScope
 import com.churchmanagement.mobile.ui.EmptyState
@@ -33,7 +38,7 @@ fun DynamicScreen(
 
     when (val current = state) {
         null -> ListSkeleton()
-        is LayoutResult.Ready -> RenderNode(current.spec.root, scope)
+        is LayoutResult.Ready -> RenderWhenReady(current.spec, scope)
         LayoutResult.Unavailable -> if (fallback != null) {
             fallback()
         } else {
@@ -43,4 +48,31 @@ fun DynamicScreen(
             )
         }
     }
+}
+
+/**
+ * Só renderiza a árvore quando TODAS as fontes de dados dela já carregaram — evita o efeito de
+ * seções aparecendo/mudando em momentos diferentes. Enquanto falta algo, mostra o skeleton.
+ * (Com os StateFlows quentes, a revisita já vem pronta e nem pisca.)
+ */
+@Composable
+private fun RenderWhenReady(spec: ScreenSpec, scope: RenderScope) {
+    val resolver: DataResolver = koinInject()
+    val sources = remember(spec) { collectSources(spec.root) }
+    val allReady = sources.all { (source, limit) ->
+        resolver.stream(source, limit, scope.userId).collectAsState().value != null
+    }
+    if (sources.isNotEmpty() && !allReady) ListSkeleton()
+    else RenderNode(spec.root, scope)
+}
+
+/** Coleta recursivamente as fontes de dados (`source` + `limit`) declaradas na árvore. */
+private fun collectSources(
+    node: UiNode,
+    acc: MutableList<Pair<String, Int?>> = mutableListOf(),
+): MutableList<Pair<String, Int?>> {
+    node.props.string("source")?.let { acc.add(it to node.props.int("limit")) }
+    node.itemTemplate?.let { collectSources(it, acc) }
+    node.children.forEach { collectSources(it, acc) }
+    return acc
 }
