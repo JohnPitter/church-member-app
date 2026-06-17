@@ -62,12 +62,16 @@ keyPassword=SUA_SENHA_DO_BACKUP
 Alternativa ao upload manual no Play Console. Configurado via plugin `com.github.triplet.play`.
 
 **Setup (uma vez):**
-1. No **Google Cloud Console** do projeto do app: crie uma **service account** e gere uma **chave JSON**.
-   Habilite a **Google Play Android Developer API** no projeto.
-2. No **Play Console** → *Usuários e permissões* → convide o e-mail da service account e dê permissão de **gerenciar versões/releases**.
-3. Salve o JSON em **`mobile/play-service-account.json`** (já está no `.gitignore` — é segredo).
+1. No **Play Console** → menu lateral **Conta de desenvolvedor → Acesso à API**
+   (atalho: `https://play.google.com/console/api-access`). Crie/vincule uma **service account**
+   pelo link que abre o Google Cloud Console.
+2. No **Google Cloud Console** (projeto vinculado): abra a service account → **Chaves → Adicionar chave → JSON**
+   e baixe o arquivo. A **Google Play Android Developer API** já vem habilitada por esse fluxo.
+3. Volte em **Acesso à API** no Play Console → na service account, **Conceder acesso** → permissão de
+   **gerenciar versões/releases** (ou Admin). Aguarde ~5 min pra propagar.
+4. Salve o JSON em **`mobile/play-service-account.json`** (já está no `.gitignore` — é segredo).
    > Não use o `serviceAccountKey.json` do Firebase aqui — é outra credencial.
-4. O primeiro upload do app tem que ter sido manual (já foi); a partir daí a API/CLI funciona.
+5. O primeiro upload do app tem que ter sido manual (já foi); a partir daí a API/CLI funciona.
 
 **Publicar o App Bundle:**
 ```bash
