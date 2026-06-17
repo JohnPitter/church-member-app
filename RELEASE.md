@@ -18,6 +18,7 @@ Estes estão no `.gitignore` (não vêm no clone). Coloque-os manualmente:
 | `composeApp/google-services.json` | Firebase Console → projeto `church-management-ibc` → app Android → baixar | Config do Firebase (build falha sem ele) |
 | `upload-keystore.jks` | Seu **backup privado** (Google Drive / gerenciador de senhas) | Chave de assinatura do release |
 | `keystore.properties` | Recriar (modelo abaixo) com a senha do backup | Senhas da chave para o Gradle |
+| `play-service-account.json` *(opcional)* | Google Cloud → service account com acesso no Play Console → baixar JSON | Publicar por **linha de comando** (ver seção abaixo) |
 
 Modelo de `keystore.properties` (na pasta `mobile/`):
 
@@ -53,6 +54,32 @@ keyPassword=SUA_SENHA_DO_BACKUP
 ./gradlew :composeApp:assembleDebug      # gera APK de debug
 ./gradlew :composeApp:installDebug       # instala no emulador/dispositivo conectado
 ```
+
+---
+
+## Publicar por linha de comando (Gradle Play Publisher)
+
+Alternativa ao upload manual no Play Console. Configurado via plugin `com.github.triplet.play`.
+
+**Setup (uma vez):**
+1. No **Google Cloud Console** do projeto do app: crie uma **service account** e gere uma **chave JSON**.
+   Habilite a **Google Play Android Developer API** no projeto.
+2. No **Play Console** → *Usuários e permissões* → convide o e-mail da service account e dê permissão de **gerenciar versões/releases**.
+3. Salve o JSON em **`mobile/play-service-account.json`** (já está no `.gitignore` — é segredo).
+   > Não use o `serviceAccountKey.json` do Firebase aqui — é outra credencial.
+4. O primeiro upload do app tem que ter sido manual (já foi); a partir daí a API/CLI funciona.
+
+**Publicar o App Bundle:**
+```bash
+cd mobile
+# 1) suba o versionCode/versionName em composeApp/build.gradle.kts
+./gradlew :composeApp:publishReleaseBundle                      # faixa "internal" (padrão)
+./gradlew :composeApp:publishReleaseBundle --track production   # produção
+./gradlew :composeApp:publishReleaseBundle --track beta         # ou alpha/beta
+```
+Outras tasks úteis: `promoteReleaseArtifact` (promover de uma faixa para outra), `publishApps` (artefato + metadados).
+
+> Recomendado: publicar primeiro em **internal** e validar antes de promover para produção.
 
 ---
 

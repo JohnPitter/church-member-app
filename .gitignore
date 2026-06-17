@@ -22,6 +22,9 @@ store-assets/
 google-services.json
 GoogleService-Info.plist
 
+# Service account do Google Play (secret — para publicar via Gradle Play Publisher)
+play-service-account.json
+
 # IDE
 .idea/
 *.iml

@@ -24,6 +24,9 @@ gitliveFirebase = "2.1.0"
 googleServices = "4.4.2"
 firebaseBom = "33.7.0"
 
+# Publicação no Google Play (Gradle Play Publisher)
+tripletPlay = "3.12.1"
+
 [libraries]
 # Kotlinx
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -64,3 +67,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+tripletPlay = { id = "com.github.triplet.play", version.ref = "tripletPlay" }

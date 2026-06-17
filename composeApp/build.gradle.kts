@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
+    alias(libs.plugins.tripletPlay)
 }
 
 // Configuração de assinatura de release lida de keystore.properties (fora do git).
@@ -129,4 +130,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+// Publicação no Google Play via Gradle Play Publisher (Triple-T).
+// Requer `mobile/play-service-account.json` (service account com permissão no Play Console; gitignored).
+// Uso: ./gradlew :composeApp:publishReleaseBundle                 (sobe o .aab na faixa abaixo)
+//      ./gradlew :composeApp:publishReleaseBundle --track production
+play {
+    serviceAccountCredentials.set(rootProject.file("play-service-account.json"))
+    defaultToAppBundles.set(true) // publica o App Bundle (.aab), não APK
+    track.set("internal")         // faixa padrão (teste interno); sobrescreva com --track
 }
