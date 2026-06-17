@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
 
 /** Duração mínima de loading exibida em toda página. */
-const val MIN_LOADING_MS = 1000L
+const val MIN_LOADING_MS = 500L
 
 /**
  * Mostra [loading] por NO MÍNIMO [minMs] e enquanto [ready] for false; só então renderiza [content].
