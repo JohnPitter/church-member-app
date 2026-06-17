@@ -1,9 +1,13 @@
 package com.churchmanagement.mobile.sdui.feature
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.sdui.data.DataResolver
 import com.churchmanagement.mobile.sdui.data.LayoutRepository
@@ -62,9 +66,21 @@ private fun RenderWhenReady(spec: ScreenSpec, scope: RenderScope) {
     val allReady = sources.all { (source, limit) ->
         resolver.stream(source, limit, scope.userId).collectAsState().value != null
     }
-    if (sources.isNotEmpty() && !allReady) ListSkeleton()
-    else RenderNode(spec.root, scope)
+    if (sources.isEmpty() || allReady) {
+        RenderNode(spec.root, scope)
+        return
+    }
+    // Período de graça: só exibe o skeleton se a carga passar de ~300ms. Em cargas rápidas
+    // (cache/StateFlow quente) a tela já abre com o conteúdo, sem flash de skeleton "piscando".
+    var showSkeleton by remember(spec) { mutableStateOf(false) }
+    LaunchedEffect(spec) {
+        delay(SKELETON_GRACE_MS)
+        showSkeleton = true
+    }
+    if (showSkeleton) ListSkeleton()
 }
+
+private const val SKELETON_GRACE_MS = 300L
 
 /** Coleta recursivamente as fontes de dados (`source` + `limit`) declaradas na árvore. */
 private fun collectSources(
