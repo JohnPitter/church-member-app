@@ -63,11 +63,17 @@ private fun RenderWhenReady(spec: ScreenSpec, scope: RenderScope) {
     val allReady = sources.isEmpty() || sources.all { (source, limit) ->
         resolver.stream(source, limit, scope.userId).collectAsState().value != null
     }
-    // Loading mínimo de 1s (e estende se os dados ainda não vieram). Uniformiza a sensação em
-    // todas as telas e absorve a troca cache→servidor do Firestore dentro do loading.
-    // key = id da tela: como o DynamicScreen serve várias telas no mesmo ponto de chamada,
-    // isso garante que cada tela reinicie o seu próprio 1s de loading.
-    LoadingGate(ready = allReady, key = spec.id) { RenderNode(spec.root, scope) }
+    // Loading mínimo (e estende se os dados ainda não vieram). Uniformiza a sensação em todas as
+    // telas e absorve a troca cache→servidor do Firestore dentro do loading. O skeleton é DERIVADO
+    // do próprio layout (mesma árvore em modo skeleton), então combina com cada tela.
+    // key = id da tela: o DynamicScreen serve várias telas no mesmo ponto de chamada.
+    LoadingGate(
+        ready = allReady,
+        key = spec.id,
+        loading = { RenderNode(spec.root, scope.asSkeleton()) },
+    ) {
+        RenderNode(spec.root, scope)
+    }
 }
 
 /** Coleta recursivamente as fontes de dados (`source` + `limit`) declaradas na árvore. */

@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -46,10 +49,10 @@ import com.churchmanagement.mobile.sdui.data.DataResolver
 import com.churchmanagement.mobile.sdui.model.UiNode
 import com.churchmanagement.mobile.sdui.model.int
 import com.churchmanagement.mobile.sdui.model.string
-import com.churchmanagement.mobile.ui.CardSkeleton
 import com.churchmanagement.mobile.ui.EmptyState
 import com.churchmanagement.mobile.ui.ListSkeleton
 import com.churchmanagement.mobile.ui.MemberAvatar
+import com.churchmanagement.mobile.ui.SkeletonBox
 import com.churchmanagement.mobile.ui.WhatsAppButton
 import com.churchmanagement.mobile.ui.shimmerBrush
 import com.churchmanagement.mobile.util.currentLocalDate
@@ -84,16 +87,25 @@ object CoreComponents {
 /** Avatar circular (foto ou inicial). `name`, `photoUrl`, `size`. */
 @Composable
 private fun AvatarComponent(node: UiNode, scope: RenderScope) {
+    val size = (node.props.int("size") ?: 56).dp
+    if (scope.skeleton) {
+        Shimmer(Modifier.size(size), CircleShape)
+        return
+    }
     MemberAvatar(
         name = scope.resolve(node.props.string("name")),
         photoUrl = scope.resolve(node.props.string("photoUrl")).ifBlank { null },
-        size = (node.props.int("size") ?: 56).dp,
+        size = size,
     )
 }
 
 /** Botão WhatsApp (`phone`). Não renderiza nada se o número for inválido. */
 @Composable
 private fun WhatsAppComponent(node: UiNode, scope: RenderScope) {
+    if (scope.skeleton) {
+        Shimmer(Modifier.fillMaxWidth().height(32.dp), RoundedCornerShape(16.dp))
+        return
+    }
     WhatsAppButton(phone = scope.resolve(node.props.string("phone")).ifBlank { null }, modifier = Modifier.fillMaxWidth())
 }
 
@@ -121,12 +133,17 @@ private fun IconCardComponent(node: UiNode, scope: RenderScope) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(
-                imageVector = sduiIcon(node.props.string("icon")),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(text = scope.resolve(node.props.string("label")), style = MaterialTheme.typography.titleMedium)
+            if (scope.skeleton) {
+                Shimmer(Modifier.size(24.dp), CircleShape)
+                Shimmer(Modifier.fillMaxWidth(0.5f).height(16.dp))
+            } else {
+                Icon(
+                    imageVector = sduiIcon(node.props.string("icon")),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Text(text = scope.resolve(node.props.string("label")), style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }
@@ -144,6 +161,13 @@ private fun ListComponent(node: UiNode, scope: RenderScope) {
     val limit = node.props.int("limit")
     val spacing = node.props.int("spacing") ?: 12
     val horizontal = node.props.string("orientation") == "horizontal"
+    val itemWidth = node.props.int("itemWidth") ?: 150
+
+    if (scope.skeleton) {
+        SkeletonItems(template, scope, limit ?: 3, horizontal, spacing, itemWidth)
+        return
+    }
+
     val resolver: DataResolver = koinInject()
     // StateFlow quente e compartilhado → revisita entrega o valor na hora, sem piscar skeleton.
     val items by remember(source, limit, scope.userId) {
@@ -151,12 +175,7 @@ private fun ListComponent(node: UiNode, scope: RenderScope) {
     }.collectAsState()
 
     when (val list = items) {
-        null -> {
-            val brush = shimmerBrush()
-            Column(verticalArrangement = Arrangement.spacedBy(spacing.dp)) {
-                repeat(limit ?: 3) { CardSkeleton(brush) }
-            }
-        }
+        null -> SkeletonItems(template, scope, limit ?: 3, horizontal, spacing, itemWidth)
         else -> if (list.isEmpty()) {
             node.props.string("emptyText")?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
         } else {
@@ -165,10 +184,9 @@ private fun ListComponent(node: UiNode, scope: RenderScope) {
                     Text(scope.resolve(it), style = MaterialTheme.typography.titleLarge)
                 }
                 if (horizontal) {
-                    val itemWidth = (node.props.int("itemWidth") ?: 150).dp
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(spacing.dp)) {
                         items(list, key = { it["id"] ?: "" }) { item ->
-                            Box(Modifier.width(itemWidth)) { RenderNode(template, scope.withItem(item)) }
+                            Box(Modifier.width(itemWidth.dp)) { RenderNode(template, scope.withItem(item)) }
                         }
                     }
                 } else {
@@ -216,6 +234,15 @@ private fun LazyColumnComponent(node: UiNode, scope: RenderScope) {
     val spacing = Arrangement.spacedBy((node.props.int("spacing") ?: 0).dp)
     val source = node.props.string("source")
     val template = node.itemTemplate
+
+    if (scope.skeleton) {
+        // Skeleton derivado do layout: cabeçalho estático + N cópias do itemTemplate, tudo shimmer.
+        Column(Modifier.fillMaxSize().padding(padding), verticalArrangement = spacing) {
+            node.children.forEach { RenderNode(it, scope) }
+            template?.let { tpl -> repeat(5) { RenderNode(tpl, scope) } }
+        }
+        return
+    }
 
     if (source == null || template == null) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = padding, verticalArrangement = spacing) {
@@ -345,6 +372,10 @@ private fun CardComponent(node: UiNode, scope: RenderScope) {
 
 @Composable
 private fun TextComponent(node: UiNode, scope: RenderScope) {
+    if (scope.skeleton) {
+        Shimmer(Modifier.fillMaxWidth(0.7f).height(textSkeletonHeight(node.props.string("style")).dp))
+        return
+    }
     val maxLines = node.props.int("maxLines")
     var modifier: Modifier = Modifier
     node.props.int("height")?.let { modifier = modifier.height(it.dp) }
@@ -361,6 +392,11 @@ private fun TextComponent(node: UiNode, scope: RenderScope) {
 
 @Composable
 private fun ImageComponent(node: UiNode, scope: RenderScope) {
+    if (scope.skeleton) {
+        val h = node.props.int("height") ?: 140
+        Shimmer(Modifier.fillMaxWidth().height(h.dp), RoundedCornerShape((node.props.int("cornerRadius") ?: 0).dp))
+        return
+    }
     val url = scope.resolve(node.props.string("url"))
     if (url.isBlank()) return
     var modifier: Modifier = Modifier.fillMaxWidth()
@@ -378,6 +414,10 @@ private fun ImageComponent(node: UiNode, scope: RenderScope) {
 
 @Composable
 private fun ButtonComponent(node: UiNode, scope: RenderScope) {
+    if (scope.skeleton) {
+        Shimmer(Modifier.fillMaxWidth().height(44.dp), RoundedCornerShape(22.dp))
+        return
+    }
     Button(
         onClick = { node.action?.let { scope.act(it) } },
         modifier = Modifier.fillMaxWidth(),
@@ -388,6 +428,10 @@ private fun ButtonComponent(node: UiNode, scope: RenderScope) {
 
 @Composable
 private fun SectionHeaderComponent(node: UiNode, scope: RenderScope) {
+    if (scope.skeleton) {
+        Shimmer(Modifier.fillMaxWidth(0.5f).height(22.dp))
+        return
+    }
     val actionLabel = node.props.string("actionLabel")
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -409,10 +453,50 @@ private fun SpacerComponent(node: UiNode) {
 
 // ---- Helpers ----
 
-/** Aplica a ação do nó como clique, se houver. */
+/** Aplica a ação do nó como clique, se houver (desabilitado no skeleton). */
 private fun Modifier.clickableAction(node: UiNode, scope: RenderScope): Modifier {
+    if (scope.skeleton) return this
     val action = node.action ?: return this
     return this.clickable { scope.act(action) }
+}
+
+/** Placeholder shimmer (usado no modo skeleton). */
+@Composable
+private fun Shimmer(modifier: Modifier, shape: Shape = RoundedCornerShape(6.dp)) {
+    SkeletonBox(brush = shimmerBrush(), modifier = modifier, shape = shape)
+}
+
+/** Altura aproximada do placeholder de uma linha de texto, por estilo. */
+private fun textSkeletonHeight(style: String?): Int = when (style) {
+    "displayLarge", "displayMedium", "displaySmall" -> 30
+    "headlineLarge", "headlineMedium", "headlineSmall" -> 24
+    "titleLarge" -> 22
+    "titleMedium", "bodyLarge" -> 18
+    "titleSmall", "bodyMedium", "bodySmall" -> 14
+    "labelLarge", "labelMedium", "labelSmall" -> 12
+    else -> 14
+}
+
+/** Renderiza [count] cópias do [template] em modo skeleton (vertical ou carrossel). */
+@Composable
+private fun SkeletonItems(
+    template: UiNode,
+    scope: RenderScope,
+    count: Int,
+    horizontal: Boolean,
+    spacing: Int,
+    itemWidth: Int,
+) {
+    val sk = scope.asSkeleton()
+    if (horizontal) {
+        Row(horizontalArrangement = Arrangement.spacedBy(spacing.dp)) {
+            repeat(count) { Box(Modifier.width(itemWidth.dp)) { RenderNode(template, sk) } }
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(spacing.dp)) {
+            repeat(count) { RenderNode(template, sk) }
+        }
+    }
 }
 
 /** Padding uniforme a partir da prop `padding`. */

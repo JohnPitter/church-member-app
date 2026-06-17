@@ -14,11 +14,17 @@ class RenderScope(
     val user: AppUser?,
     val onAction: (UiAction) -> Unit,
     val userId: String? = user?.uid,
+    /** Em modo skeleton, as folhas (texto/imagem/etc.) renderizam placeholders shimmer no lugar do conteúdo. */
+    val skeleton: Boolean = false,
     private val item: Map<String, String> = emptyMap(),
 ) {
     /** Deriva um escopo-filho vinculado a um item de dados (usado pelo componente `list`). */
     fun withItem(item: Map<String, String>): RenderScope =
-        RenderScope(user = user, onAction = onAction, userId = userId, item = item)
+        RenderScope(user = user, onAction = onAction, userId = userId, skeleton = skeleton, item = item)
+
+    /** Deriva um escopo em modo skeleton (mantém a mesma árvore, mas as folhas viram shimmer). */
+    fun asSkeleton(): RenderScope =
+        RenderScope(user = user, onAction = onAction, userId = userId, skeleton = true, item = item)
 
     /** Resolve a ação (interpolando rota/url/param) e a despacha. */
     fun act(action: UiAction) {
