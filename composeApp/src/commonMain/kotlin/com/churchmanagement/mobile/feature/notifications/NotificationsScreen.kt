@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.domain.NotificationItem
 import com.churchmanagement.mobile.ui.EmptyState
-import com.churchmanagement.mobile.ui.ListSkeleton
+import com.churchmanagement.mobile.ui.LoadingGate
 import com.churchmanagement.mobile.util.toShortDate
 import org.koin.compose.koinInject
 
@@ -36,9 +36,9 @@ fun NotificationsScreen(userId: String, modifier: Modifier = Modifier) {
     val flow = remember(userId) { repo.observeForUser(userId) }
     val notifications by flow.collectAsState()
 
-    when (val list = notifications) {
-        null -> ListSkeleton(modifier)
-        else -> if (list.isEmpty()) {
+    LoadingGate(ready = notifications != null, modifier = modifier) {
+        val list = notifications.orEmpty()
+        if (list.isEmpty()) {
             EmptyState(
                 title = "Sem avisos",
                 subtitle = "Você está em dia! Novos avisos aparecerão aqui.",

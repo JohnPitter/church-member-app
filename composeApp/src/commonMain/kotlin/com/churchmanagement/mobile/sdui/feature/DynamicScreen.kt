@@ -1,13 +1,9 @@
 package com.churchmanagement.mobile.sdui.feature
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.sdui.data.DataResolver
 import com.churchmanagement.mobile.sdui.data.LayoutRepository
@@ -21,6 +17,7 @@ import com.churchmanagement.mobile.sdui.render.RenderNode
 import com.churchmanagement.mobile.sdui.render.RenderScope
 import com.churchmanagement.mobile.ui.EmptyState
 import com.churchmanagement.mobile.ui.ListSkeleton
+import com.churchmanagement.mobile.ui.LoadingGate
 import org.koin.compose.koinInject
 
 /**
@@ -63,36 +60,15 @@ fun DynamicScreen(
 private fun RenderWhenReady(spec: ScreenSpec, scope: RenderScope) {
     val resolver: DataResolver = koinInject()
     val sources = remember(spec) { collectSources(spec.root) }
-    if (sources.isEmpty()) {
-        RenderNode(spec.root, scope)
-        return
+    val allReady = sources.isEmpty() || sources.all { (source, limit) ->
+        resolver.stream(source, limit, scope.userId).collectAsState().value != null
     }
-    // Valor atual de cada fonte. StateFlow quente → na revisita já vem o dado do servidor.
-    val values = sources.map { (source, limit) ->
-        resolver.stream(source, limit, scope.userId).collectAsState().value
-    }
-    // Revisita: dados já em mãos no 1º frame → renderiza na hora, sem skeleton.
-    val initiallyReady = remember(spec) { values.all { it != null } }
-    if (initiallyReady) {
-        RenderNode(spec.root, scope)
-        return
-    }
-    // Carga fria: skeleton até os dados ESTABILIZAREM. O Firestore emite primeiro o cache e depois
-    // o servidor; esperar a estabilização (sem novas mudanças por ~400ms) absorve essa troca DENTRO
-    // do skeleton, em vez de piscar/mudar na tela. dataKey muda a cada emissão e reinicia a espera.
-    val allReady = values.all { it != null }
-    val dataKey = values.joinToString("|") { it?.hashCode()?.toString() ?: "loading" }
-    var settled by remember(spec) { mutableStateOf(false) }
-    LaunchedEffect(dataKey) {
-        if (allReady) {
-            delay(SETTLE_MS)
-            settled = true
-        }
-    }
-    if (settled) RenderNode(spec.root, scope) else ListSkeleton()
+    // Loading mínimo de 1s (e estende se os dados ainda não vieram). Uniformiza a sensação em
+    // todas as telas e absorve a troca cache→servidor do Firestore dentro do loading.
+    // key = id da tela: como o DynamicScreen serve várias telas no mesmo ponto de chamada,
+    // isso garante que cada tela reinicie o seu próprio 1s de loading.
+    LoadingGate(ready = allReady, key = spec.id) { RenderNode(spec.root, scope) }
 }
-
-private const val SETTLE_MS = 400L
 
 /** Coleta recursivamente as fontes de dados (`source` + `limit`) declaradas na árvore. */
 private fun collectSources(
