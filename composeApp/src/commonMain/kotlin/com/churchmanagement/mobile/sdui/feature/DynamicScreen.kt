@@ -63,24 +63,36 @@ fun DynamicScreen(
 private fun RenderWhenReady(spec: ScreenSpec, scope: RenderScope) {
     val resolver: DataResolver = koinInject()
     val sources = remember(spec) { collectSources(spec.root) }
-    val allReady = sources.all { (source, limit) ->
-        resolver.stream(source, limit, scope.userId).collectAsState().value != null
-    }
-    if (sources.isEmpty() || allReady) {
+    if (sources.isEmpty()) {
         RenderNode(spec.root, scope)
         return
     }
-    // Período de graça: só exibe o skeleton se a carga passar de ~300ms. Em cargas rápidas
-    // (cache/StateFlow quente) a tela já abre com o conteúdo, sem flash de skeleton "piscando".
-    var showSkeleton by remember(spec) { mutableStateOf(false) }
-    LaunchedEffect(spec) {
-        delay(SKELETON_GRACE_MS)
-        showSkeleton = true
+    // Valor atual de cada fonte. StateFlow quente → na revisita já vem o dado do servidor.
+    val values = sources.map { (source, limit) ->
+        resolver.stream(source, limit, scope.userId).collectAsState().value
     }
-    if (showSkeleton) ListSkeleton()
+    // Revisita: dados já em mãos no 1º frame → renderiza na hora, sem skeleton.
+    val initiallyReady = remember(spec) { values.all { it != null } }
+    if (initiallyReady) {
+        RenderNode(spec.root, scope)
+        return
+    }
+    // Carga fria: skeleton até os dados ESTABILIZAREM. O Firestore emite primeiro o cache e depois
+    // o servidor; esperar a estabilização (sem novas mudanças por ~400ms) absorve essa troca DENTRO
+    // do skeleton, em vez de piscar/mudar na tela. dataKey muda a cada emissão e reinicia a espera.
+    val allReady = values.all { it != null }
+    val dataKey = values.joinToString("|") { it?.hashCode()?.toString() ?: "loading" }
+    var settled by remember(spec) { mutableStateOf(false) }
+    LaunchedEffect(dataKey) {
+        if (allReady) {
+            delay(SETTLE_MS)
+            settled = true
+        }
+    }
+    if (settled) RenderNode(spec.root, scope) else ListSkeleton()
 }
 
-private const val SKELETON_GRACE_MS = 300L
+private const val SETTLE_MS = 400L
 
 /** Coleta recursivamente as fontes de dados (`source` + `limit`) declaradas na árvore. */
 private fun collectSources(
