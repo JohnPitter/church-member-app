@@ -65,7 +65,7 @@
           { "type": "iconCard", "props": { "label": "Projetos", "icon": "projects" }, "action": { "type": "navigate", "screen": "dynamic:projects" } },
           { "type": "iconCard", "props": { "label": "Transmissões", "icon": "live" }, "action": { "type": "navigate", "screen": "dynamic:lives" } },
           { "type": "iconCard", "props": { "label": "Liderança", "icon": "groups" }, "action": { "type": "navigate", "screen": "dynamic:leadership" } },
-          { "type": "iconCard", "props": { "label": "Oração", "icon": "prayer" }, "action": { "type": "navigate", "screen": "prayer" } },
+          { "type": "iconCard", "props": { "label": "Pedidos de Oração", "icon": "prayer" }, "action": { "type": "navigate", "screen": "prayer-requests" } },
           { "type": "iconCard", "props": { "label": "Aniversários", "icon": "cake" }, "action": { "type": "navigate", "screen": "birthdays" } }
         ]
       }

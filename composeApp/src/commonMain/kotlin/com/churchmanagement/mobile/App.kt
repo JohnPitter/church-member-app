@@ -45,6 +45,7 @@ import com.churchmanagement.mobile.feature.forum.ForumTopicDetailScreen
 import com.churchmanagement.mobile.feature.forum.NewTopicScreen
 import com.churchmanagement.mobile.feature.leadership.LeadershipScreen
 import com.churchmanagement.mobile.feature.lives.LivesScreen
+import com.churchmanagement.mobile.feature.prayer.PrayerRequestsScreen
 import com.churchmanagement.mobile.feature.prayer.PrayerScreen
 import com.churchmanagement.mobile.feature.projects.ProjectDetailScreen
 import com.churchmanagement.mobile.feature.projects.ProjectsScreen
@@ -221,6 +222,10 @@ private fun MainScaffold(user: AppUser) {
                 Screen.Projects -> NativeProjects(navigator)
                 Screen.Lives -> LivesScreen()
                 Screen.Leadership -> LeadershipScreen()
+                Screen.PrayerRequests -> PrayerRequestsScreen(
+                    user = user,
+                    onSubmitRequest = { navigator.push(Screen.Prayer) },
+                )
                 Screen.Prayer -> PrayerScreen()
                 Screen.Birthdays -> BirthdaysScreen()
                 is Screen.Dynamic -> DynamicScreen(
@@ -254,7 +259,7 @@ private fun NativeHome(user: AppUser, navigator: Navigator) {
         onOpenProjects = { navigator.push(Screen.Projects) },
         onOpenLives = { navigator.push(Screen.Lives) },
         onOpenLeadership = { navigator.push(Screen.Leadership) },
-        onOpenPrayer = { navigator.push(Screen.Prayer) },
+        onOpenPrayer = { navigator.push(Screen.PrayerRequests) },
         onOpenBirthdays = { navigator.push(Screen.Birthdays) },
         onOpenDynamic = { id, title -> navigator.push(Screen.Dynamic(id, title)) },
     )
@@ -355,7 +360,8 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.Projects -> "Projetos"
     Screen.Lives -> "Transmissões"
     Screen.Leadership -> "Liderança"
-    Screen.Prayer -> "Pedidos de Oração"
+    Screen.PrayerRequests -> "Pedidos de Oração"
+    Screen.Prayer -> "Enviar pedido"
     Screen.NewTopic -> "Novo tópico"
     Screen.Birthdays -> "Aniversariantes"
     is Screen.Dynamic -> screen.title.ifBlank { "Conteúdo" }

@@ -11,20 +11,29 @@ import kotlinx.coroutines.flow.map
 class NotificationRepository(private val firestore: FirebaseFirestore) {
 
     /**
-     * Notificações destinadas ao usuário (ou broadcasts sem destinatário), recentes primeiro
-     * (StateFlow quente). `null` = carregando. A filtragem por destinatário é feita no cliente.
+     * Notificações destinadas exclusivamente a este usuário (filtro no Firestore).
+     * `null` = carregando. Docs sem userId ou de outro usuário nunca aparecem.
      */
     fun observeForUser(userId: String): StateFlow<List<NotificationItem>?> =
-        firestore.collection(Collections.NOTIFICATIONS).snapshots.map { snapshot ->
-            snapshot.documents
-                .mapNotNull { doc ->
-                    runCatching {
-                        val dto = doc.data(NotificationDto.serializer())
-                        if (dto.userId == userId || dto.userId.isBlank()) dto.toDomain(doc.id) else null
-                    }.getOrNull()
-                }
-                .sortedByDescending { it.createdAt }
-        }.sharedState("notifications:$userId")
+        firestore.collection(Collections.NOTIFICATIONS)
+            .where { "userId" equalTo userId }
+            .snapshots
+            .map { snapshot ->
+                snapshot.documents
+                    .mapNotNull { doc ->
+                        runCatching {
+                            val dto = doc.data(NotificationDto.serializer())
+                            // Defesa em profundidade: só aceita match exato com o usuário logado
+                            if (dto.userId == userId && dto.userId.isNotBlank()) {
+                                dto.toDomain(doc.id)
+                            } else {
+                                null
+                            }
+                        }.getOrNull()
+                    }
+                    .sortedByDescending { it.createdAt }
+            }
+            .sharedState("notifications:$userId")
 }
 
 private fun NotificationDto.toDomain(id: String) = NotificationItem(

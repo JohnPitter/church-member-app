@@ -153,3 +153,15 @@ data class NotificationItem(
     val isUnread: Boolean,
     val createdAt: Instant?,
 )
+
+/** Pedido de oração na parede da comunidade (últimos 7 dias). */
+data class PrayerRequestItem(
+    val id: String,
+    val name: String,
+    val request: String,
+    val isUrgent: Boolean,
+    val isAnonymous: Boolean,
+    val status: String,
+    val prayedBy: List<String>,
+    val createdAt: Instant?,
+)

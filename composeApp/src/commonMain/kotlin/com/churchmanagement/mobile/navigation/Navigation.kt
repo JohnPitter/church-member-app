@@ -26,6 +26,9 @@ sealed interface Screen {
     data object Projects : Screen
     data object Lives : Screen
     data object Leadership : Screen
+    /** Parede da comunidade: pedidos dos últimos 7 dias + “orei”. */
+    data object PrayerRequests : Screen
+    /** Formulário para enviar um novo pedido. */
     data object Prayer : Screen
     data object NewTopic : Screen
     data object Birthdays : Screen
@@ -93,6 +96,7 @@ fun screenForRoute(route: String, param: String? = null): Screen? = when {
     route == "projects" -> Screen.Projects
     route == "lives" -> Screen.Lives
     route == "leadership" -> Screen.Leadership
+    route == "prayer-requests" || route == "prayerRequests" -> Screen.PrayerRequests
     route == "prayer" -> Screen.Prayer
     route == "birthdays" -> Screen.Birthdays
     route == "newTopic" -> Screen.NewTopic

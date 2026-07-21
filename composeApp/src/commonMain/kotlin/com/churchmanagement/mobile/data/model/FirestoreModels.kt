@@ -158,6 +158,20 @@ data class LeaderDto(
 
 // ---- DTOs de escrita (criação a partir do app) ----
 
+/** Leitura de `prayerRequests` (mesmo schema do web). */
+@Serializable
+data class PrayerRequestDto(
+    val name: String = "",
+    val request: String = "",
+    val isUrgent: Boolean = false,
+    val isAnonymous: Boolean = false,
+    val status: String = "pending",
+    val source: String = "website",
+    val prayedBy: List<String> = emptyList(),
+    val createdAt: Timestamp? = null,
+    val updatedAt: Timestamp? = null,
+)
+
 @Serializable
 data class CreatePrayerRequestDto(
     val name: String,

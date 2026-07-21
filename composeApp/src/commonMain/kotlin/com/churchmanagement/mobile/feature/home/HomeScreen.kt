@@ -151,7 +151,7 @@ fun HomeScreen(
             Shortcut("Projetos", Icons.Outlined.Diversity3, onOpenProjects),
             Shortcut("Transmissões", Icons.Outlined.LiveTv, onOpenLives),
             Shortcut("Liderança", Icons.Outlined.Groups, onOpenLeadership),
-            Shortcut("Oração", Icons.Outlined.VolunteerActivism, onOpenPrayer),
+            Shortcut("Pedidos de Oração", Icons.Outlined.VolunteerActivism, onOpenPrayer),
             Shortcut("Aniversários", Icons.Outlined.Cake, onOpenBirthdays),
             Shortcut("Novidades", Icons.Outlined.AutoAwesome) { onOpenDynamic("novidades", "Novidades") },
         )
