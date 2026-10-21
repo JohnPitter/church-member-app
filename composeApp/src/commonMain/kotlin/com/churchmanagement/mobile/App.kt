@@ -59,6 +59,7 @@ import com.churchmanagement.mobile.feature.events.EventsScreen
 import com.churchmanagement.mobile.feature.home.HomeScreen
 import com.churchmanagement.mobile.feature.notifications.NotificationsScreen
 import com.churchmanagement.mobile.feature.profile.ProfileScreen
+import com.churchmanagement.mobile.feature.pedagogy.PedagogyScreen
 import com.churchmanagement.mobile.navigation.Navigator
 import com.churchmanagement.mobile.navigation.Screen
 import com.churchmanagement.mobile.navigation.Tab
@@ -215,7 +216,8 @@ private fun MainScaffold(user: AppUser) {
                 Screen.Events -> NativeEvents(navigator)
                 Screen.Devotionals -> NativeDevotionals(navigator)
                 Screen.Notifications -> NotificationsScreen(userId = user.uid)
-                Screen.Profile -> ProfileScreen(user = user)
+                Screen.Profile -> ProfileScreen(user = user, onOpenPedagogy = { navigator.push(Screen.Pedagogy) })
+                Screen.Pedagogy -> PedagogyScreen()
                 Screen.Blog -> NativeBlog(navigator)
                 Screen.Forum -> NativeForum(navigator)
                 Screen.NewTopic -> NewTopicScreen(onCreated = { navigator.back() })
@@ -364,6 +366,7 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.Prayer -> "Enviar pedido"
     Screen.NewTopic -> "Novo tópico"
     Screen.Birthdays -> "Aniversariantes"
+    Screen.Pedagogy -> "Coordenação Pedagógica"
     is Screen.Dynamic -> screen.title.ifBlank { "Conteúdo" }
     is Screen.EventDetail -> "Evento"
     is Screen.DevotionalDetail -> "Devocional"

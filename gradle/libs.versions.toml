@@ -26,8 +26,15 @@ firebaseBom = "33.7.0"
 
 # Publicação no Google Play (Gradle Play Publisher)
 tripletPlay = "3.12.1"
+junit = "4.13.2"
+composeUiTest = "1.7.6"
+androidTestRunner = "1.6.2"
 
 [libraries]
+junit = { module = "junit:junit", version.ref = "junit" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUiTest" }
+android-test-runner = { module = "androidx.test:runner", version.ref = "androidTestRunner" }
 # Kotlinx
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }

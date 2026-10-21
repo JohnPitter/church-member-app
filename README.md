@@ -1,10 +1,19 @@
 # Church Member App (Kotlin Multiplatform)
 
-App móvel para **membros comuns** da igreja, compartilhando o backend Firebase do web app
+App móvel para membros e equipes autorizadas da igreja, compartilhando o backend Firebase do web app
 (`church-management-ibc`). UI escrita uma única vez com **Compose Multiplatform** (Android + iOS).
 
-> **Status:** Etapa 1 — fundação + Login + Início + Eventos + Devocionais + Avisos + Perfil.
-> Demais telas do membro (Blog, Fórum, Projetos, Lives, Oração, Liderança) vêm nas próximas etapas.
+> **Versão 1.0.4 (código 5):** inclui Coordenação Pedagógica nativa, acessível em **Perfil → Coordenação Pedagógica** para usuários com permissão. Também oferece Login, Início, Eventos, Devocionais, Avisos, Perfil, Blog, Fórum, Projetos, Lives, Oração e Liderança.
+
+## Pedagogia
+
+- Avaliação: instrumento recebido do servidor, cinco ciclos, nove dimensões, momentos, observações e encaminhamentos. Assistidos são vinculados às chamadas existentes.
+- Aplicação: consulta dos relatos das diretrizes, separada das avaliações dos assistidos.
+- Relatórios: filtros de organização, semestre, ciclo, turma e assistido; indicadores recebidos do backend e histórico carregado sob demanda.
+- Android: exportação PDF e DOCX por compartilhamento nativo, permitindo salvar os arquivos no dispositivo. A exportação carrega os dados completos antes de gerar o documento.
+- A autorização é verificada nas Cloud Functions. Educadores consultam apenas seus registros; Psicologia exige permissão explícita. Dados de avaliações não são acessados diretamente no Firestore.
+- Requer `getDevelopmentEvaluationWorkspace`, além das três funções de avaliação já usadas pelo web, em `southamerica-east1`.
+- iOS: código compartilhado, sem nova distribuição iOS; a exportação de arquivos desta versão está disponível no Android.
 
 ---
 
@@ -88,9 +97,7 @@ APK gerado em: `composeApp/build/outputs/apk/debug/composeApp-debug.apk` (~23 MB
 > **Build verificado** nesta máquina (Windows): `commonMain`, target Android e APK de debug
 > compilam/montam com sucesso. Requer Android SDK **Platform 35** + **Build-Tools 35.0.0**.
 
-> ⚠️ **Placeholder do Firebase:** existe um `composeApp/google-services.json` temporário (chaves
-> fictícias) só para o build compilar. **Substitua pelo arquivo real** do Firebase Console para o
-> app conectar de fato (login e dados). Sem o real, o login falha em runtime.
+> Use o `google-services.json` real do projeto `church-management-ibc`. Esse arquivo é local e não é versionado.
 
 ### APK/AAB de release
 
@@ -99,7 +106,7 @@ APK gerado em: `composeApp/build/outputs/apk/debug/composeApp-debug.apk` (~23 MB
 ./gradlew :composeApp:bundleRelease        # AAB para a Play Store
 ```
 
-> Para release você precisará configurar um *signing config* (keystore). Hoje só o debug está pronto.
+> O release usa a assinatura configurada em `keystore.properties`; consulte [RELEASE.md](RELEASE.md).
 
 ---
 

@@ -13,7 +13,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -22,13 +27,23 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.domain.AppUser
+import com.churchmanagement.mobile.feature.pedagogy.PedagogyGateway
+import com.churchmanagement.mobile.feature.pedagogy.WorkspaceRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun ProfileScreen(user: AppUser, modifier: Modifier = Modifier) {
+fun ProfileScreen(user: AppUser, onOpenPedagogy: () -> Unit, modifier: Modifier = Modifier) {
     val auth: AuthRepository = koinInject()
     val scope = rememberCoroutineScope()
+    val pedagogy: PedagogyGateway = koinInject()
+    var canAccessPedagogy by remember(user.uid) { mutableStateOf(false) }
+    LaunchedEffect(user.uid) {
+        try { canAccessPedagogy = pedagogy.workspace(WorkspaceRequest("church", "context")).access.view
+        } catch (cancelled: CancellationException) { throw cancelled
+        } catch (_: Exception) { canAccessPedagogy = false }
+    }
 
     Column(
         modifier = modifier.fillMaxSize().padding(24.dp),
@@ -74,6 +89,9 @@ fun ProfileScreen(user: AppUser, modifier: Modifier = Modifier) {
             )
         }
 
+        if (canAccessPedagogy) OutlinedButton(onClick = onOpenPedagogy, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+            Text("Coordenação Pedagógica")
+        }
         OutlinedButton(
             onClick = { scope.launch { auth.signOut() } },
             modifier = Modifier.fillMaxWidth().padding(top = 32.dp),

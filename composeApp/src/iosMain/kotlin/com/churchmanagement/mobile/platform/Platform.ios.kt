@@ -7,6 +7,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
+import com.churchmanagement.mobile.feature.pedagogy.EvaluationDocument
 
 // Implementações iOS mínimas. Compartilhar usa UIActivityViewController.
 // Conectividade e notificações iOS ainda são stubs (a implementar quando o iOS for ativado no Mac).
@@ -15,6 +16,13 @@ actual fun platformModule(): Module = module {
     single<ConnectivityObserver> { IosConnectivityObserver() }
     single<Notifier> { IosNotifier() }
     single<PushTokenProvider> { IosPushTokenProvider() }
+    single<ReportExporter> { IosReportExporter() }
+}
+
+private class IosReportExporter : ReportExporter {
+    override val formats = emptyList<String>()
+    override suspend fun export(document: EvaluationDocument, format: String): Unit =
+        error("A exportação de relatórios está disponível no app Android e na versão web.")
 }
 
 private class IosPushTokenProvider : PushTokenProvider {

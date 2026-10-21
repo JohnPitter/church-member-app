@@ -82,6 +82,19 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+
+        androidUnitTest.dependencies {
+            implementation(libs.junit)
+        }
+
+        androidInstrumentedTest.dependencies {
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.android.test.runner)
+        }
     }
 }
 
@@ -93,8 +106,9 @@ android {
         applicationId = "com.churchmanagement.mobile"
         minSdk = libs.versions.androidMinSdk.get().toInt()
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -130,6 +144,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+dependencies {
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 // Publicação no Google Play via Gradle Play Publisher (Triple-T).
