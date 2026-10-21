@@ -14,6 +14,8 @@ import com.churchmanagement.mobile.data.PrayerRepository
 import com.churchmanagement.mobile.data.ProjectRepository
 import com.churchmanagement.mobile.data.SettingsRepository
 import com.churchmanagement.mobile.data.UserRepository
+import com.churchmanagement.mobile.data.PedagogyRepository
+import com.churchmanagement.mobile.feature.pedagogy.PedagogyGateway
 import com.churchmanagement.mobile.sdui.data.AppConfigRepository
 import com.churchmanagement.mobile.sdui.data.DataResolver
 import com.churchmanagement.mobile.sdui.data.LayoutRepository
@@ -40,6 +42,7 @@ val appModule = module {
     single { PrayerRepository(get()) }
     single { SettingsRepository(get()) }
     single { UserRepository(get()) }
+    single<PedagogyGateway> { PedagogyRepository() }
     single { LayoutRepository(get()) }
     single { AppConfigRepository(get()) }
     single { DataResolver(get(), get(), get(), get(), get(), get(), get(), get(), get()) }

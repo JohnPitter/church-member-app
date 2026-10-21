@@ -29,6 +29,7 @@ actual fun platformModule(): Module = module {
     single<ConnectivityObserver> { AndroidConnectivityObserver(androidContext()) }
     single<Notifier> { AndroidNotifier(androidContext()) }
     single<PushTokenProvider> { AndroidPushTokenProvider() }
+    single<ReportExporter> { AndroidReportExporter(androidContext()) }
 }
 
 const val AVISOS_CHANNEL_ID = "avisos"

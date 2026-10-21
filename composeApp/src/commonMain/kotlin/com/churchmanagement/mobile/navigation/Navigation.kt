@@ -32,6 +32,7 @@ sealed interface Screen {
     data object Prayer : Screen
     data object NewTopic : Screen
     data object Birthdays : Screen
+    data object Pedagogy : Screen
 
     /** Tela renderizada por um layout server-driven (`appScreens/{id}`). */
     data class Dynamic(val id: String, val title: String = "") : Screen
@@ -99,6 +100,7 @@ fun screenForRoute(route: String, param: String? = null): Screen? = when {
     route == "prayer-requests" || route == "prayerRequests" -> Screen.PrayerRequests
     route == "prayer" -> Screen.Prayer
     route == "birthdays" -> Screen.Birthdays
+    route == "pedagogy" -> Screen.Pedagogy
     route == "newTopic" -> Screen.NewTopic
     route == "eventDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.EventDetail(it) }
     route == "devotionalDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.DevotionalDetail(it) }
