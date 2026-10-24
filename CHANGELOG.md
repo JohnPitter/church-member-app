@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7 (9) — 2026-10-24
+
+- Corrigida a numeração do pacote pedagógico: a faixa de teste interno já utiliza 1.0.6 com versionCode 8, conforme evidência do Play Console fornecida pelo usuário.
+- Substitui os artefatos locais 1.0.4 (5) por APK/AAB 1.0.7 (9), preservando a implementação pedagógica integrada.
+- O nome da versão exibido no Play Console pode ser personalizado; o controle do pacote utiliza `versionCode`, que deve crescer a cada envio.
+
 ## 1.0.4 (5) — 2026-10-21
 
 - Coordenação Pedagógica nativa no Perfil de usuários autorizados, usando as mesmas permissões do web.
