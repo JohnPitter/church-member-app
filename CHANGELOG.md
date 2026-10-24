@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.8 (10) — 2026-10-24
+
+- Atualizados `compileSdk` e `targetSdk` de 35 para 36 para atender ao bloqueio informado pelo Play Console.
+- Atualizadas as ferramentas de compilação para AGP 8.10.1, Gradle 8.14 e Kotlin/Compose Compiler 2.2.10, preservando as bibliotecas e funcionalidades do app.
+- Incrementado o código para 10 porque o pacote de código 9 já foi enviado à loja.
+- A minificação continua desativada: não há arquivo de mapeamento de desofuscação a enviar. O aviso de símbolos das bibliotecas nativas é independente da correção de API.
+- Validação: cinco testes unitários e três testes instrumentados no Android 16 passaram; lint sem erros, APK/AAB assinados com API 36 e código 10 conferidos no manifesto. Alinhamento de 16 KB do APK e das bibliotecas de 64 bits verificado. A aceitação final no Play Console depende do novo envio.
+
 ## 1.0.7 (9) — 2026-10-24
 
 - Corrigida a numeração do pacote pedagógico: a faixa de teste interno já utiliza 1.0.6 com versionCode 8, conforme evidência do Play Console fornecida pelo usuário.
