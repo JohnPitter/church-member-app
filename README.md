@@ -3,7 +3,7 @@
 App móvel para membros e equipes autorizadas da igreja, compartilhando o backend Firebase do web app
 (`church-management-ibc`). UI escrita uma única vez com **Compose Multiplatform** (Android + iOS).
 
-> **Versão 1.0.4 (código 5):** inclui Coordenação Pedagógica nativa, acessível em **Perfil → Coordenação Pedagógica** para usuários com permissão. Também oferece Login, Início, Eventos, Devocionais, Avisos, Perfil, Blog, Fórum, Projetos, Lives, Oração e Liderança.
+> **Versão 1.0.7 (código 9):** inclui Coordenação Pedagógica nativa, acessível em **Perfil → Coordenação Pedagógica** para usuários com permissão. Também oferece Login, Início, Eventos, Devocionais, Avisos, Perfil, Blog, Fórum, Projetos, Lives, Oração e Liderança.
 
 ## Pedagogia
 

@@ -106,8 +106,8 @@ android {
         applicationId = "com.churchmanagement.mobile"
         minSdk = libs.versions.androidMinSdk.get().toInt()
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 9
+        versionName = "1.0.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
