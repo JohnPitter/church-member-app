@@ -3,7 +3,7 @@
 App móvel para membros e equipes autorizadas da igreja, compartilhando o backend Firebase do web app
 (`church-management-ibc`). UI escrita uma única vez com **Compose Multiplatform** (Android + iOS).
 
-> **Versão 1.0.7 (código 9):** inclui Coordenação Pedagógica nativa, acessível em **Perfil → Coordenação Pedagógica** para usuários com permissão. Também oferece Login, Início, Eventos, Devocionais, Avisos, Perfil, Blog, Fórum, Projetos, Lives, Oração e Liderança.
+> **Versão 1.0.8 (código 10):** API de destino Android 16 (36). Inclui Coordenação Pedagógica nativa, acessível em **Perfil → Coordenação Pedagógica** para usuários com permissão. Também oferece Login, Início, Eventos, Devocionais, Avisos, Perfil, Blog, Fórum, Projetos, Lives, Oração e Liderança.
 
 ## Pedagogia
 
@@ -51,7 +51,7 @@ mobile/
 ## Pré-requisitos (Windows — alvo Android)
 
 1. **Android Studio** (Ladybug ou mais recente) — instala Android SDK, Gradle e emulador.
-   - Em *Settings → Languages & Frameworks → Android SDK*, instale **Android SDK Platform 35**.
+   - Em *Settings → Languages & Frameworks → Android SDK*, instale **Android SDK Platform 36**.
 2. **JDK 17** (já presente nesta máquina).
 
 Após instalar, o Android Studio cria `local.properties` apontando para o SDK e gera o
@@ -95,7 +95,7 @@ export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 APK gerado em: `composeApp/build/outputs/apk/debug/composeApp-debug.apk` (~23 MB).
 
 > **Build verificado** nesta máquina (Windows): `commonMain`, target Android e APK de debug
-> compilam/montam com sucesso. Requer Android SDK **Platform 35** + **Build-Tools 35.0.0**.
+> compilam/montam com sucesso. Requer Android SDK **Platform 36** + **Build-Tools 35.0.0** (padrão do AGP 8.10.1).
 
 > Use o `google-services.json` real do projeto `church-management-ibc`. Esse arquivo é local e não é versionado.
 

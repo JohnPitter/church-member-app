@@ -1,11 +1,11 @@
 [versions]
 # Build / language
-kotlin = "2.1.0"
-agp = "8.7.3"
+kotlin = "2.2.10"
+agp = "8.10.1"
 composeMultiplatform = "1.7.3"
-androidCompileSdk = "35"
+androidCompileSdk = "36"
 androidMinSdk = "24"
-androidTargetSdk = "35"
+androidTargetSdk = "36"
 
 # AndroidX (android target only)
 androidxActivityCompose = "1.9.3"

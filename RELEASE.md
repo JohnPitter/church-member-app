@@ -6,7 +6,7 @@ Como gerar e publicar uma nova versão na Google Play. **Nenhum segredo fica nes
 
 ## Pré-requisitos (uma vez por máquina)
 
-- **Android Studio** + **Android SDK Platform 35** + **Build-Tools 35.0.0**
+- **Android Studio** + **Android SDK Platform 36** + **Build-Tools 35.0.0** (padrão do AGP 8.10.1)
 - **JDK 17** (ou o JBR do Android Studio)
 
 ## Arquivos NÃO versionados que precisam existir antes de buildar
@@ -39,6 +39,7 @@ keyPassword=SUA_SENHA_DO_BACKUP
 1. **Incrementar a versão** em `composeApp/build.gradle.kts` → `defaultConfig`:
    - `versionCode` → sempre **maior** que o anterior (ex.: `1` → `2`). A Play exige.
    - `versionName` → texto visível ao usuário (ex.: `"1.0.0"` → `"1.0.1"`).
+   - Conferir a API de destino exigida no Play Console antes do envio. A versão 1.0.8 usa `targetSdk = 36` e código 10, pois o pacote de código 9 já foi enviado e bloqueado pela API 35.
 
 2. **Gerar o AAB assinado**:
    ```bash
