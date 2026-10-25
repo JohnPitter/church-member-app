@@ -35,6 +35,7 @@ import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.feature.pedagogy.PedagogyGateway
 import com.churchmanagement.mobile.feature.pedagogy.WorkspaceRequest
 import com.churchmanagement.mobile.util.AppLinks
+import com.churchmanagement.mobile.util.openSafely
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -105,7 +106,7 @@ fun ProfileScreen(
             Text("Coordenação Pedagógica")
         }
         OutlinedButton(
-            onClick = { uriHandler.openUri(AppLinks.PRIVACY_POLICY_URL) },
+            onClick = { uriHandler.openSafely(AppLinks.PRIVACY_POLICY_URL) },
             modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
         ) {
             Text("Política de Privacidade")

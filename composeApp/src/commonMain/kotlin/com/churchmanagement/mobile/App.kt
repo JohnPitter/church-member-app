@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.data.SettingsRepository
@@ -110,11 +109,8 @@ fun App() {
         // Registra o token FCM do dispositivo para receber push (mesmo com o app fechado).
         val pushTokenProvider: PushTokenProvider = koinInject()
         val userRepo: UserRepository = koinInject()
-        val accountDeletion: AccountDeletionRepository = koinInject()
         LaunchedEffect(user?.uid) {
             val uid = user?.uid ?: return@LaunchedEffect
-            // Durante a exclusão da conta não registramos o aparelho de novo no perfil.
-            if (accountDeletion.isDeleting.value) return@LaunchedEffect
             runCatching {
                 pushTokenProvider.token()?.let { token -> userRepo.addFcmToken(uid, token) }
             }

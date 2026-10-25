@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.util.AppLinks
+import com.churchmanagement.mobile.util.openSafely
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -72,11 +72,13 @@ fun LoginScreen() {
 
     // Aviso pós-exclusão de conta ("Sua conta foi excluída.") como snackbar.
     val snackbar = remember { SnackbarHostState() }
-    val notice by accountDeletion.notice.collectAsState()
-    LaunchedEffect(notice) {
-        val message = notice ?: return@LaunchedEffect
-        accountDeletion.consumeNotice()
-        snackbar.showSnackbar(message)
+    // Chave estável: consumir o aviso não pode cancelar o snackbar que está sendo exibido.
+    LaunchedEffect(Unit) {
+        accountDeletion.notice.collect { message ->
+            if (message == null) return@collect
+            accountDeletion.consumeNotice()
+            snackbar.showSnackbar(message)
+        }
     }
 
     Surface(Modifier.fillMaxSize()) {
@@ -155,7 +157,7 @@ fun LoginScreen() {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 24.dp),
             )
-            TextButton(onClick = { uriHandler.openUri(AppLinks.PRIVACY_POLICY_URL) }) {
+            TextButton(onClick = { uriHandler.openSafely(AppLinks.PRIVACY_POLICY_URL) }) {
                 Text("Política de Privacidade", style = MaterialTheme.typography.bodySmall)
             }
         }

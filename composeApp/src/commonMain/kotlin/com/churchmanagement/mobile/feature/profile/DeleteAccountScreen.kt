@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.util.AppLinks
+import com.churchmanagement.mobile.util.openSafely
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -185,13 +186,16 @@ fun DeleteAccountScreen(user: AppUser, onCancel: () -> Unit, modifier: Modifier 
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Button(
-                    onClick = { uriHandler.openUri(AppLinks.DELETE_ACCOUNT_URL) },
+                    onClick = { uriHandler.openSafely(AppLinks.DELETE_ACCOUNT_URL) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("Excluir pelo site") }
+                ContactLine(prefix = "Não consegue entrar? Peça a exclusão pelo e-mail") {
+                    uriHandler.openSafely(AppLinks.CHURCH_CONTACT_MAILTO)
+                }
             }
             ReauthMethod.PASSWORD -> {
                 OutlinedTextField(
@@ -238,6 +242,9 @@ fun DeleteAccountScreen(user: AppUser, onCancel: () -> Unit, modifier: Modifier 
                     Text(failure.message, style = MaterialTheme.typography.bodyMedium)
                 }
             }
+            ContactLine(prefix = "Precisa de ajuda? Fale com a igreja pelo e-mail") {
+                uriHandler.openSafely(AppLinks.CHURCH_CONTACT_MAILTO)
+            }
         }
 
         if (method == ReauthMethod.PASSWORD) {
@@ -263,9 +270,24 @@ fun DeleteAccountScreen(user: AppUser, onCancel: () -> Unit, modifier: Modifier 
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            TextButton(onClick = { uriHandler.openUri(AppLinks.PRIVACY_POLICY_URL) }) {
+            TextButton(onClick = { uriHandler.openSafely(AppLinks.PRIVACY_POLICY_URL) }) {
                 Text("Política de Privacidade", style = MaterialTheme.typography.bodySmall)
             }
+        }
+    }
+}
+
+/** Texto + e-mail oficial da igreja (o endereço fica visível mesmo sem app de e-mail instalado). */
+@Composable
+private fun ContactLine(prefix: String, onOpenMail: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            text = prefix,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TextButton(onClick = onOpenMail) {
+            Text(AppLinks.CHURCH_CONTACT_EMAIL, style = MaterialTheme.typography.bodySmall)
         }
     }
 }
