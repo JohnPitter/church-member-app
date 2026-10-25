@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.data.SettingsRepository
@@ -35,6 +36,7 @@ import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.domain.OrgSettings
 import com.churchmanagement.mobile.platform.ConnectivityObserver
 import com.churchmanagement.mobile.platform.Notifier
+import com.churchmanagement.mobile.platform.PlatformBackHandler
 import com.churchmanagement.mobile.platform.PushTokenProvider
 import com.churchmanagement.mobile.feature.auth.LoginScreen
 import com.churchmanagement.mobile.feature.birthdays.BirthdaysScreen
@@ -157,6 +159,11 @@ private fun MainScaffold(user: AppUser) {
     val online by connectivity.isOnline.collectAsState()
     val uriHandler = LocalUriHandler.current
 
+    // Enquanto a conta é excluída, a navegação fica travada para a chamada não se perder.
+    val accountDeletion: AccountDeletionRepository = koinInject()
+    val deletingAccount by accountDeletion.isDeleting.collectAsState()
+    PlatformBackHandler(enabled = deletingAccount) { /* ignora o voltar durante a exclusão */ }
+
     // Dispatcher de ações declaradas no JSON do SDUI (navegação, links externos, voltar).
     val dispatch: (UiAction) -> Unit = { action ->
         when (action.type) {
@@ -188,7 +195,7 @@ private fun MainScaffold(user: AppUser) {
             TopAppBar(
                 title = { Text(titleFor(navigator.current)) },
                 navigationIcon = {
-                    if (navigator.canGoBack) {
+                    if (navigator.canGoBack && !deletingAccount) {
                         IconButton(onClick = { navigator.back() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                         }
@@ -202,6 +209,7 @@ private fun MainScaffold(user: AppUser) {
                     NavigationBarItem(
                         selected = navigator.current == tab.target,
                         onClick = { navigator.selectRoot(tab.target) },
+                        enabled = !deletingAccount,
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
                         label = { Text(tab.label) },
                     )

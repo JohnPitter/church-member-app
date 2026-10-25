@@ -86,6 +86,22 @@ class AccountDeletionContractsTest {
     }
 
     @Test
+    fun invalidUserMeansTheAccountIsAlreadyGoneAndOnlyThat() {
+        assertTrue(isAccountAlreadyGone(ReauthFailure.INVALID_USER))
+        ReauthFailure.entries.filter { it != ReauthFailure.INVALID_USER }.forEach {
+            assertFalse(isAccountAlreadyGone(it), "$it não pode encerrar a sessão")
+        }
+    }
+
+    @Test
+    fun reauthFailuresMapToErrorKinds() {
+        assertEquals(DeletionErrorKind.WRONG_PASSWORD, reauthFailureError(ReauthFailure.INVALID_CREDENTIALS).kind)
+        assertEquals(DeletionErrorKind.TOO_MANY_REQUESTS, reauthFailureError(ReauthFailure.TOO_MANY_REQUESTS).kind)
+        assertEquals(DeletionErrorKind.NETWORK, reauthFailureError(ReauthFailure.NETWORK).kind)
+        assertEquals(DeletionErrorKind.GENERIC, reauthFailureError(ReauthFailure.OTHER).kind)
+    }
+
+    @Test
     fun reauthFailuresHaveUserFacingMessages() {
         assertEquals("Senha incorreta. Verifique e tente novamente.", reauthDeletionError(DeletionErrorKind.WRONG_PASSWORD).message)
         assertTrue(reauthDeletionError(DeletionErrorKind.TOO_MANY_REQUESTS).message.startsWith("Muitas tentativas"))

@@ -86,6 +86,25 @@ fun reauthDeletionError(kind: DeletionErrorKind): DeletionError = DeletionError(
     },
 )
 
+/** Falhas da reautenticação, já classificadas a partir das exceções do SDK. */
+enum class ReauthFailure { INVALID_CREDENTIALS, INVALID_USER, TOO_MANY_REQUESTS, NETWORK, OTHER }
+
+/**
+ * Usuário inválido/inexistente na reautenticação = a conta já não existe no servidor (ex.: exclusão
+ * anterior cuja resposta se perdeu). O app deve encerrar a sessão local e avisar que a conta foi excluída.
+ */
+fun isAccountAlreadyGone(failure: ReauthFailure): Boolean = failure == ReauthFailure.INVALID_USER
+
+fun reauthFailureError(failure: ReauthFailure): DeletionError = reauthDeletionError(
+    when (failure) {
+        ReauthFailure.INVALID_CREDENTIALS -> DeletionErrorKind.WRONG_PASSWORD
+        ReauthFailure.INVALID_USER -> DeletionErrorKind.SESSION_EXPIRED
+        ReauthFailure.TOO_MANY_REQUESTS -> DeletionErrorKind.TOO_MANY_REQUESTS
+        ReauthFailure.NETWORK -> DeletionErrorKind.NETWORK
+        ReauthFailure.OTHER -> DeletionErrorKind.GENERIC
+    },
+)
+
 /** Extrai `details.reason` do HttpsError (Android entrega um Map; outros formatos viram null). */
 fun deletionReasonFrom(details: Any?): String? = (details as? Map<*, *>)?.get("reason") as? String
 

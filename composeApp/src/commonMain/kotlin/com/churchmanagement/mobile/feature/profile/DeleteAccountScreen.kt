@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,11 +82,16 @@ fun DeleteAccountScreen(user: AppUser, onCancel: () -> Unit, modifier: Modifier 
     var confirmation by remember { mutableStateOf("") }
     var deleting by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<DeletionError?>(null) }
+    // Estado da exclusão no repositório (fonte da verdade; sobrevive a recomposições).
+    val repositoryDeleting by deletion.isDeleting.collectAsState()
+    val inProgress = deleting || repositoryDeleting
 
-    val canSubmit = !deleting && canSubmitDeletion(method, password, confirmation)
+    val canSubmit = !inProgress && canSubmitDeletion(method, password, confirmation)
 
     fun submit() {
-        if (!canSubmit) return
+        // Lê o estado atual (não o valor capturado na composição) contra toque duplo; o repositório
+        // ainda reaproveita uma chamada em andamento, então nunca há duas exclusões simultâneas.
+        if (deleting || deletion.isDeleting.value || !canSubmitDeletion(method, password, confirmation)) return
         deleting = true
         error = null
         scope.launch {
@@ -101,7 +107,7 @@ fun DeleteAccountScreen(user: AppUser, onCancel: () -> Unit, modifier: Modifier 
         }
     }
 
-    if (deleting) {
+    if (inProgress) {
         Column(
             modifier = modifier.fillMaxSize().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
