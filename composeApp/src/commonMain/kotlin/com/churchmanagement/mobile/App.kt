@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.data.SettingsRepository
@@ -58,6 +59,7 @@ import com.churchmanagement.mobile.feature.events.EventDetailScreen
 import com.churchmanagement.mobile.feature.events.EventsScreen
 import com.churchmanagement.mobile.feature.home.HomeScreen
 import com.churchmanagement.mobile.feature.notifications.NotificationsScreen
+import com.churchmanagement.mobile.feature.profile.DeleteAccountScreen
 import com.churchmanagement.mobile.feature.profile.ProfileScreen
 import com.churchmanagement.mobile.feature.pedagogy.PedagogyScreen
 import com.churchmanagement.mobile.navigation.Navigator
@@ -108,8 +110,11 @@ fun App() {
         // Registra o token FCM do dispositivo para receber push (mesmo com o app fechado).
         val pushTokenProvider: PushTokenProvider = koinInject()
         val userRepo: UserRepository = koinInject()
+        val accountDeletion: AccountDeletionRepository = koinInject()
         LaunchedEffect(user?.uid) {
             val uid = user?.uid ?: return@LaunchedEffect
+            // Durante a exclusão da conta não registramos o aparelho de novo no perfil.
+            if (accountDeletion.isDeleting.value) return@LaunchedEffect
             runCatching {
                 pushTokenProvider.token()?.let { token -> userRepo.addFcmToken(uid, token) }
             }
@@ -216,8 +221,13 @@ private fun MainScaffold(user: AppUser) {
                 Screen.Events -> NativeEvents(navigator)
                 Screen.Devotionals -> NativeDevotionals(navigator)
                 Screen.Notifications -> NotificationsScreen(userId = user.uid)
-                Screen.Profile -> ProfileScreen(user = user, onOpenPedagogy = { navigator.push(Screen.Pedagogy) })
+                Screen.Profile -> ProfileScreen(
+                    user = user,
+                    onOpenPedagogy = { navigator.push(Screen.Pedagogy) },
+                    onOpenDeleteAccount = { navigator.push(Screen.DeleteAccount) },
+                )
                 Screen.Pedagogy -> PedagogyScreen()
+                Screen.DeleteAccount -> DeleteAccountScreen(user = user, onCancel = { navigator.back() })
                 Screen.Blog -> NativeBlog(navigator)
                 Screen.Forum -> NativeForum(navigator)
                 Screen.NewTopic -> NewTopicScreen(onCreated = { navigator.back() })
@@ -367,6 +377,7 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.NewTopic -> "Novo tópico"
     Screen.Birthdays -> "Aniversariantes"
     Screen.Pedagogy -> "Coordenação Pedagógica"
+    Screen.DeleteAccount -> "Excluir conta"
     is Screen.Dynamic -> screen.title.ifBlank { "Conteúdo" }
     is Screen.EventDetail -> "Evento"
     is Screen.DevotionalDetail -> "Devocional"

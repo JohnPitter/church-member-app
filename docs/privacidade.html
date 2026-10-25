@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Política de Privacidade — Comunidade (App da Igreja)</title>
   <style>
-    :root { --primary: #2563eb; }
+    :root { --primary: #2563eb; --danger: #b91c1c; }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; color: #1f2937; max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
+    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; color: #1f2937; background: #ffffff; max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
     h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 4px; }
     h2 { font-size: 1.15rem; margin-top: 32px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
     .meta { color: #6b7280; font-size: .9rem; margin-bottom: 24px; }
+    .note { background: #f3f4f6; border-radius: 8px; padding: 12px 16px; }
     ul { padding-left: 22px; }
     li { margin: 6px 0; }
     code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
@@ -19,57 +20,115 @@
   </style>
 </head>
 <body>
+  <!-- Mantida em sincronia com a página web /privacidade (src/presentation/pages/PrivacyPolicyPage.tsx). -->
   <h1>Política de Privacidade</h1>
-  <p class="meta">Aplicativo <strong>Comunidade</strong> — app de membros da Igreja Batista do Caçote · Última atualização: 01/06/2026</p>
+  <p class="meta">Aplicativo <strong>Comunidade</strong> — app de membros da Igreja Batista do Caçote · Última atualização: 25/10/2026</p>
 
-  <p>Esta Política de Privacidade descreve como o aplicativo móvel <strong>Comunidade</strong> (“app”, “nós”) coleta, usa e protege as informações dos seus usuários (“você”). Ao usar o app, você concorda com as práticas descritas aqui.</p>
+  <p>Esta Política explica como a Igreja Batista do Caçote trata os dados pessoais das pessoas que usam este sistema (site e aplicativo <strong>Comunidade</strong>), em conformidade com a Lei Geral de Proteção de Dados Pessoais (LGPD – Lei nº 13.709/2018).</p>
 
-  <h2>1. Informações que coletamos</h2>
+  <h2 id="controlador">1. Controlador e Encarregado (DPO)</h2>
+  <p>O controlador dos dados é a Igreja Batista do Caçote, organização que opera esta instalação do sistema e decide como os dados são tratados.</p>
+  <p>Para dúvidas, solicitações ou reclamações sobre dados pessoais, fale com o Encarregado pelo Tratamento de Dados Pessoais (DPO) pelo e-mail <a href="mailto:CONTATO@SUA-IGREJA.COM.BR">CONTATO@SUA-IGREJA.COM.BR</a> ou pelos canais de contato divulgados pela administração da igreja.</p>
+
+  <h2 id="dados-coletados">2. Dados que coletamos</h2>
+  <p>Conforme os módulos utilizados pela igreja, podemos tratar:</p>
   <ul>
-    <li><strong>Dados de conta</strong>: nome e e-mail, fornecidos no cadastro/login (autenticação por e-mail e senha).</li>
-    <li><strong>Conteúdo gerado por você</strong>: tópicos e respostas no fórum, pedidos de oração e interações com eventos, devocionais, blog e projetos.</li>
-    <li><strong>Identificador de notificações</strong>: um token do dispositivo (Firebase Cloud Messaging) para enviar notificações de avisos.</li>
-    <li><strong>Dados técnicos básicos</strong>: informações necessárias ao funcionamento (ex.: estado de conexão), processadas no dispositivo.</li>
+    <li>Cadastro e conta: nome, e-mail, telefone, foto de perfil e credenciais de acesso (login por e-mail e senha ou por conta Google; no aplicativo, o login é por e-mail e senha).</li>
+    <li>Membros e visitantes: dados de cadastro e de acompanhamento informados à igreja.</li>
+    <li>Pedidos de oração, publicações e comentários no fórum e demais espaços de comunidade.</li>
+    <li>Eventos e projetos: inscrições e participação.</li>
+    <li>Doações e financeiro: registros de contribuições e movimentações.</li>
+    <li>Notificações push: tokens de dispositivo (Firebase Cloud Messaging) e preferências de notificação.</li>
+    <li>Registros de auditoria e de sistema (logs de ações realizadas na plataforma).</li>
+    <li>Dados sensíveis de saúde: fichas, anamneses e atendimentos dos serviços de assistência social, psicologia, fisioterapia e nutrição.</li>
+    <li>Dados de crianças e adolescentes: avaliações de desenvolvimento e acompanhamento pedagógico.</li>
   </ul>
-  <p>Não coletamos localização precisa, contatos, fotos ou dados de pagamento.</p>
+  <p>O aplicativo não coleta localização precisa, contatos, fotos da galeria nem dados de pagamento.</p>
+  <p><strong>Dado sensível por inferência.</strong> O vínculo com uma igreja pode revelar convicção religiosa, que é dado pessoal sensível (art. 5º, II, da LGPD). Por isso, tratamos todos os dados deste sistema com o cuidado exigido para dados sensíveis.</p>
 
-  <h2>2. Como usamos as informações</h2>
+  <h2 id="finalidades">3. Para que usamos os dados</h2>
   <ul>
-    <li>Autenticar seu acesso e exibir os conteúdos da sua igreja (eventos, devocionais, fórum, etc.).</li>
-    <li>Permitir que você participe (criar tópicos, responder, enviar pedidos de oração).</li>
-    <li>Enviar notificações de avisos relevantes.</li>
-    <li>Manter a segurança e o bom funcionamento do serviço.</li>
+    <li>Criar e manter sua conta e permitir o acesso à plataforma.</li>
+    <li>Gerir membros, visitantes, ministérios, eventos, projetos e a comunicação da igreja.</li>
+    <li>Receber e acompanhar pedidos de oração e promover a interação na comunidade.</li>
+    <li>Prestar atendimentos de assistência social, psicologia, fisioterapia e nutrição.</li>
+    <li>Acompanhar o desenvolvimento de crianças e adolescentes nas atividades pedagógicas.</li>
+    <li>Registrar doações e cumprir obrigações contábeis e fiscais.</li>
+    <li>Enviar notificações e comunicados.</li>
+    <li>Garantir a segurança do sistema e manter trilhas de auditoria.</li>
   </ul>
 
-  <h2>3. Compartilhamento e provedores</h2>
-  <p>O app utiliza serviços do <strong>Google Firebase</strong> para funcionar:</p>
+  <h2 id="bases-legais">4. Bases legais</h2>
   <ul>
-    <li><strong>Firebase Authentication</strong> — login e gestão de conta.</li>
-    <li><strong>Cloud Firestore</strong> — armazenamento dos dados da igreja e do seu conteúdo.</li>
-    <li><strong>Firebase Cloud Messaging</strong> — notificações push.</li>
+    <li>Consentimento (art. 7º, I): cadastro, comunicações e participação em espaços de comunidade.</li>
+    <li>Execução de contrato ou de procedimentos preliminares (art. 7º, V) e legítimo interesse (art. 7º, IX): operação da conta e da plataforma, segurança e prevenção a fraudes.</li>
+    <li>Obrigação legal ou regulatória (art. 7º, II): registros financeiros e de doações.</li>
+    <li>Dados sensíveis (art. 11): consentimento específico e destacado (art. 11, I) e tutela da saúde, em procedimento realizado por profissionais de saúde ou serviços de saúde (art. 11, II, f), nos atendimentos.</li>
+    <li>Dados de crianças e adolescentes (art. 14): tratados no melhor interesse da criança, com consentimento específico de pelo menos um dos pais ou responsável legal.</li>
   </ul>
-  <p>Esses dados são processados pelo Google conforme a <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Política de Privacidade do Firebase</a>. Não vendemos nem comercializamos seus dados pessoais.</p>
 
-  <h2>4. Retenção de dados</h2>
-  <p>Mantemos seus dados enquanto sua conta estiver ativa. Você pode solicitar a exclusão da sua conta e dos dados associados a qualquer momento (ver “Seus direitos”).</p>
+  <h2 id="compartilhamento">5. Compartilhamento e operadores</h2>
+  <p>Não vendemos dados pessoais. Utilizamos a infraestrutura do Google (Firebase e Google Cloud) para autenticação, banco de dados, armazenamento de arquivos e envio de notificações. O Google atua como operador e pode armazenar ou processar dados fora do Brasil; nesses casos, a transferência internacional ocorre com base na LGPD (art. 33). Veja também a <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Política de Privacidade do Firebase</a>.</p>
+  <p>Dados podem ser compartilhados com autoridades quando houver obrigação legal, e com os profissionais e líderes da igreja estritamente na medida necessária para a sua função.</p>
 
-  <h2>5. Segurança</h2>
-  <p>Usamos os mecanismos de segurança do Firebase, incluindo regras de acesso no servidor e conexões criptografadas (HTTPS/TLS). Nenhum sistema é 100% infalível, mas adotamos medidas para proteger suas informações.</p>
+  <h2 id="retencao">6. Por quanto tempo guardamos</h2>
+  <p>Mantemos os dados enquanto sua conta estiver ativa ou enquanto forem necessários para as finalidades acima. Após a exclusão da conta, mantemos apenas os registros que somos obrigados ou temos interesse legítimo em conservar (por exemplo, registros financeiros e logs de auditoria), pelo prazo legal aplicável.</p>
 
-  <h2>6. Seus direitos</h2>
-  <p>Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais. Para isso, entre em contato pelo e-mail abaixo.</p>
+  <h2 id="seguranca">7. Segurança</h2>
+  <ul>
+    <li>Controle de acesso por perfis e permissões (RBAC): cada pessoa acessa apenas o que sua função exige.</li>
+    <li>Regras de segurança do banco de dados (Firestore) que restringem leitura e escrita por usuário e perfil.</li>
+    <li>Comunicação protegida por HTTPS.</li>
+    <li>Registros de auditoria das ações na plataforma.</li>
+  </ul>
+  <p>Nenhum sistema é totalmente imune a incidentes; em caso de incidente relevante, comunicaremos os titulares e a ANPD conforme a LGPD.</p>
 
-  <h2>7. Crianças</h2>
-  <p>O app destina-se aos membros da igreja. Não coletamos intencionalmente dados de crianças sem o consentimento dos responsáveis.</p>
+  <h2 id="cookies">8. Cookies e armazenamento local</h2>
+  <p>Usamos apenas armazenamento local essencial (no navegador ou no aparelho), por exemplo para manter sua sessão de login, dados em cache para uso sem conexão e preferências técnicas do funcionamento do sistema. Não utilizamos cookies de publicidade nem de rastreamento de terceiros com fins de marketing.</p>
 
-  <h2>8. Alterações</h2>
-  <p>Podemos atualizar esta política. A data da última atualização será revisada no topo desta página.</p>
+  <h2 id="direitos">9. Seus direitos (art. 18 da LGPD)</h2>
+  <p>Você pode solicitar, a qualquer momento:</p>
+  <ul>
+    <li>confirmação da existência de tratamento e acesso aos seus dados;</li>
+    <li>correção de dados incompletos, inexatos ou desatualizados;</li>
+    <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade;</li>
+    <li>portabilidade dos dados;</li>
+    <li>eliminação dos dados tratados com base em consentimento;</li>
+    <li>informação sobre com quais entidades compartilhamos seus dados;</li>
+    <li>informação sobre a possibilidade de não consentir e suas consequências;</li>
+    <li>revogação do consentimento.</li>
+  </ul>
+  <p>Para exercer seus direitos, entre em contato pelo canal do Encarregado indicado na seção 1. Você também pode peticionar à Autoridade Nacional de Proteção de Dados (ANPD).</p>
 
-  <h2>9. Contato</h2>
-  <p>Dúvidas sobre privacidade ou solicitações sobre seus dados: <a href="mailto:CONTATO@SUA-IGREJA.COM.BR">CONTATO@SUA-IGREJA.COM.BR</a></p>
+  <h2 id="exclusao">10. Exclusão da conta</h2>
+  <p>Você pode excluir sua conta a qualquer momento, de forma permanente:</p>
+  <ul>
+    <li><strong>No aplicativo:</strong> <em>Perfil → Excluir minha conta</em>. Confirme sua senha, digite <code>EXCLUIR</code> e toque em “Excluir minha conta permanentemente”.</li>
+    <li><strong>Pelo site:</strong> na página <a href="https://church-management-ibc.web.app/excluir-conta">Excluir minha conta</a> (<code>/excluir-conta</code>), entrando com a sua conta.</li>
+    <li>Também é possível solicitar a exclusão pelo contato da administração da igreja (seção 1).</li>
+  </ul>
+  <p>Ao excluir a conta:</p>
+  <ul>
+    <li><strong>Excluímos:</strong> conta e perfil, login, foto de perfil, notificações, inscrições em eventos e projetos, progresso em devocionais e planos, curtidas, preferências de notificação, perfil do fórum e os tokens de notificação dos seus aparelhos.</li>
+    <li><strong>Anonimizamos:</strong> conteúdos que você publicou em espaços de comunidade (tópicos e respostas do fórum, inclusive a indicação de “última resposta”, comentários e pedidos de oração enviados com o e-mail da conta), que passam a aparecer como “Usuário removido”.</li>
+    <li><strong>Mantemos:</strong> registros que devemos ou temos interesse legítimo em conservar: financeiro e doações (obrigação legal), registros institucionais, atendimentos e fichas de assistência vinculados ao assistido e logs de auditoria.</li>
+    <li>Cadastros de membros, voluntários e liderança são mantidos pela secretaria, não têm vínculo com o login e não são alterados pela exclusão da conta; peça à administração para corrigi-los ou removê-los.</li>
+    <li>Se você tinha cadastro de profissional de assistência vinculado à conta, o vínculo é removido e o cadastro fica inativo; o histórico de atendimentos é preservado.</li>
+    <li>Posts do blog e devocionais publicados pela equipe podem manter o nome do autor até a administração editá-los.</li>
+  </ul>
+  <p class="note">A exclusão é irreversível: a conta não pode ser recuperada. Para voltar a usar o sistema é preciso criar uma nova conta.</p>
+
+  <h2 id="criancas">11. Crianças e adolescentes</h2>
+  <p>Dados de crianças e adolescentes (como avaliações de desenvolvimento na área pedagógica) são tratados no seu melhor interesse, nos termos do art. 14 da LGPD, e exigem o consentimento específico e destacado de pelo menos um dos pais ou do responsável legal, que pode solicitar acesso, correção ou eliminação desses dados pelos canais indicados nesta Política.</p>
+
+  <h2 id="alteracoes">12. Alterações desta Política</h2>
+  <p>Podemos atualizar esta Política para refletir mudanças legais ou do sistema. A data da última atualização consta no topo desta página.</p>
+
+  <h2 id="contato">13. Contato</h2>
+  <p>Dúvidas sobre esta Política ou sobre seus dados: <a href="mailto:CONTATO@SUA-IGREJA.COM.BR">CONTATO@SUA-IGREJA.COM.BR</a>.</p>
 
   <footer>
-    Comunidade — app de membros · Igreja Batista do Caçote · Firebase (Google).
+    Comunidade — app de membros · Igreja Batista do Caçote · Versão on-line desta política: <a href="https://church-management-ibc.web.app/privacidade">church-management-ibc.web.app/privacidade</a>.
   </footer>
 </body>
 </html>

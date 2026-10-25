@@ -1,5 +1,10 @@
 # Changelog
 
+## Não lançado
+
+- Exclusão da própria conta em **Perfil → Excluir minha conta**: explica o que é apagado, anonimizado e mantido, exige a senha e a palavra `EXCLUIR`, renova o token e chama o callable `deleteOwnAccount`; depois encerra a sessão, remove o token FCM do aparelho e mostra "Sua conta foi excluída." no login. Contas sem senha (só Google) são direcionadas para `/excluir-conta` no site.
+- "Política de Privacidade" no Perfil, na tela de exclusão e no login (abre `/privacidade` do site). `docs/privacidade.html` alinhada à política web (LGPD, 25/10/2026).
+
 ## 1.0.8 (10) — 2026-10-24
 
 - Atualizados `compileSdk` e `targetSdk` de 35 para 36 para atender ao bloqueio informado pelo Play Console.

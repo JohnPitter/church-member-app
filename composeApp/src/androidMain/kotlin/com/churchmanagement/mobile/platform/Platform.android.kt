@@ -53,6 +53,12 @@ private class AndroidPushTokenProvider : PushTokenProvider {
             .addOnSuccessListener { token -> cont.resume(token) }
             .addOnFailureListener { cont.resume(null) }
     }
+
+    override suspend fun deleteToken(): Unit = suspendCancellableCoroutine { cont ->
+        FirebaseMessaging.getInstance().deleteToken()
+            .addOnSuccessListener { cont.resume(Unit) }
+            .addOnFailureListener { cont.resume(Unit) } // melhor esforço
+    }
 }
 
 private class AndroidSharer(private val context: Context) : Sharer {

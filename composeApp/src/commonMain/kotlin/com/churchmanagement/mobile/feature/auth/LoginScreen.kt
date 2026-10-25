@@ -1,6 +1,7 @@
 package com.churchmanagement.mobile.feature.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,9 +12,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,19 +27,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
+import com.churchmanagement.mobile.util.AppLinks
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen() {
     val auth: AuthRepository = koinInject()
+    val accountDeletion: AccountDeletionRepository = koinInject()
     val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -59,7 +70,17 @@ fun LoginScreen() {
         }
     }
 
+    // Aviso pós-exclusão de conta ("Sua conta foi excluída.") como snackbar.
+    val snackbar = remember { SnackbarHostState() }
+    val notice by accountDeletion.notice.collectAsState()
+    LaunchedEffect(notice) {
+        val message = notice ?: return@LaunchedEffect
+        accountDeletion.consumeNotice()
+        snackbar.showSnackbar(message)
+    }
+
     Surface(Modifier.fillMaxSize()) {
+      Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
             verticalArrangement = Arrangement.Center,
@@ -126,6 +147,19 @@ fun LoginScreen() {
                 }
                 Text(if (loading) "Entrando..." else "Entrar")
             }
+
+            Text(
+                text = "Ao entrar, você concorda com a nossa",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 24.dp),
+            )
+            TextButton(onClick = { uriHandler.openUri(AppLinks.PRIVACY_POLICY_URL) }) {
+                Text("Política de Privacidade", style = MaterialTheme.typography.bodySmall)
+            }
         }
+        SnackbarHost(snackbar, modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp))
+      }
     }
 }

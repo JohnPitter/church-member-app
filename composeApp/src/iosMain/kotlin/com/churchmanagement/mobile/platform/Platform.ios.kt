@@ -27,6 +27,7 @@ private class IosReportExporter : ReportExporter {
 
 private class IosPushTokenProvider : PushTokenProvider {
     override suspend fun token(): String? = null // TODO(iOS): APNs/FCM ao ativar a build iOS.
+    override suspend fun deleteToken() = Unit // Sem token FCM no iOS por enquanto.
 }
 
 private class IosSharer : Sharer {
