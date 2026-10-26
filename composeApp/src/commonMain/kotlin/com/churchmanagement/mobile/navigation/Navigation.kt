@@ -33,6 +33,8 @@ sealed interface Screen {
     data object NewTopic : Screen
     data object Birthdays : Screen
     data object Pedagogy : Screen
+    /** Exclusão permanente da própria conta (aberta pelo Perfil). */
+    data object DeleteAccount : Screen
 
     /** Tela renderizada por um layout server-driven (`appScreens/{id}`). */
     data class Dynamic(val id: String, val title: String = "") : Screen
@@ -101,6 +103,7 @@ fun screenForRoute(route: String, param: String? = null): Screen? = when {
     route == "prayer" -> Screen.Prayer
     route == "birthdays" -> Screen.Birthdays
     route == "pedagogy" -> Screen.Pedagogy
+    route == "deleteAccount" -> Screen.DeleteAccount
     route == "newTopic" -> Screen.NewTopic
     route == "eventDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.EventDetail(it) }
     route == "devotionalDetail" -> param?.takeIf { it.isNotBlank() }?.let { Screen.DevotionalDetail(it) }

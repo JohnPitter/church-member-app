@@ -88,6 +88,23 @@ Outras tasks úteis: `promoteReleaseArtifact` (promover de uma faixa para outra)
 
 ---
 
+## Privacidade e exclusão de conta (exigência das lojas)
+
+Google Play (Política de dados do usuário / Segurança dos dados) e App Store (diretriz 5.1.1(v)) exigem uma
+**política de privacidade** pública e um caminho de **exclusão de conta** dentro do app **e** na web:
+
+| Campo na loja | URL / caminho |
+|---|---|
+| Política de privacidade | `https://church-management-ibc.web.app/privacidade` (cópia estática: `docs/privacidade.html`) |
+| URL para excluir a conta (Play: "Exclusão de dados") | `https://church-management-ibc.web.app/excluir-conta` |
+| Caminho no app | **Perfil → Excluir minha conta** (callable `deleteOwnAccount`) |
+
+> As páginas `/privacidade` e `/excluir-conta` são do sistema web (repo `church-management`): precisam estar
+> publicadas no Firebase Hosting antes de enviar o app. Se a igreja usar um domínio próprio, atualize
+> `composeApp/.../util/AppLinks.kt` e esta tabela.
+
+---
+
 ## Checklist rápido antes de publicar
 
 - [ ] `google-services.json` presente em `composeApp/`
@@ -95,3 +112,4 @@ Outras tasks úteis: `promoteReleaseArtifact` (promover de uma faixa para outra)
 - [ ] `versionCode` incrementado
 - [ ] `./gradlew :composeApp:bundleRelease` rodou sem erro
 - [ ] AAB subido na Play Console e formulários (privacidade, data safety) preenchidos
+- [ ] URLs de política de privacidade e de exclusão de conta (tabela acima) abrindo em produção

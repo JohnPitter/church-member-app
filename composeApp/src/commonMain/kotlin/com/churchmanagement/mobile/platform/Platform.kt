@@ -21,6 +21,9 @@ interface Notifier {
 /** Fornece o token FCM do dispositivo (para push). Null se indisponível. */
 interface PushTokenProvider {
     suspend fun token(): String?
+
+    /** Invalida o token deste aparelho (usado após excluir a conta). */
+    suspend fun deleteToken()
 }
 
 /** Módulo Koin com as implementações específicas de cada plataforma. */

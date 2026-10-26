@@ -1,6 +1,9 @@
 package com.churchmanagement.mobile.feature.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -22,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -29,14 +34,22 @@ import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.feature.pedagogy.PedagogyGateway
 import com.churchmanagement.mobile.feature.pedagogy.WorkspaceRequest
+import com.churchmanagement.mobile.util.AppLinks
+import com.churchmanagement.mobile.util.openSafely
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun ProfileScreen(user: AppUser, onOpenPedagogy: () -> Unit, modifier: Modifier = Modifier) {
+fun ProfileScreen(
+    user: AppUser,
+    onOpenPedagogy: () -> Unit,
+    onOpenDeleteAccount: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val auth: AuthRepository = koinInject()
     val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
     val pedagogy: PedagogyGateway = koinInject()
     var canAccessPedagogy by remember(user.uid) { mutableStateOf(false) }
     LaunchedEffect(user.uid) {
@@ -46,7 +59,7 @@ fun ProfileScreen(user: AppUser, onOpenPedagogy: () -> Unit, modifier: Modifier 
     }
 
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -93,10 +106,32 @@ fun ProfileScreen(user: AppUser, onOpenPedagogy: () -> Unit, modifier: Modifier 
             Text("Coordenação Pedagógica")
         }
         OutlinedButton(
+            onClick = { uriHandler.openSafely(AppLinks.PRIVACY_POLICY_URL) },
+            modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        ) {
+            Text("Política de Privacidade")
+        }
+        OutlinedButton(
             onClick = { scope.launch { auth.signOut() } },
-            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         ) {
             Text("Sair")
+        }
+
+        // Zona de perigo: exclusão permanente da conta (exigência das lojas).
+        Text(
+            text = "Zona de perigo",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+        )
+        OutlinedButton(
+            onClick = onOpenDeleteAccount,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) {
+            Text("Excluir minha conta")
         }
     }
 }

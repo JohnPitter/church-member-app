@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.data.NotificationRepository
 import com.churchmanagement.mobile.data.SettingsRepository
@@ -35,6 +36,7 @@ import com.churchmanagement.mobile.domain.AppUser
 import com.churchmanagement.mobile.domain.OrgSettings
 import com.churchmanagement.mobile.platform.ConnectivityObserver
 import com.churchmanagement.mobile.platform.Notifier
+import com.churchmanagement.mobile.platform.PlatformBackHandler
 import com.churchmanagement.mobile.platform.PushTokenProvider
 import com.churchmanagement.mobile.feature.auth.LoginScreen
 import com.churchmanagement.mobile.feature.birthdays.BirthdaysScreen
@@ -58,6 +60,7 @@ import com.churchmanagement.mobile.feature.events.EventDetailScreen
 import com.churchmanagement.mobile.feature.events.EventsScreen
 import com.churchmanagement.mobile.feature.home.HomeScreen
 import com.churchmanagement.mobile.feature.notifications.NotificationsScreen
+import com.churchmanagement.mobile.feature.profile.DeleteAccountScreen
 import com.churchmanagement.mobile.feature.profile.ProfileScreen
 import com.churchmanagement.mobile.feature.pedagogy.PedagogyScreen
 import com.churchmanagement.mobile.navigation.Navigator
@@ -156,6 +159,11 @@ private fun MainScaffold(user: AppUser) {
     val online by connectivity.isOnline.collectAsState()
     val uriHandler = LocalUriHandler.current
 
+    // Enquanto a conta é excluída, a navegação fica travada para a chamada não se perder.
+    val accountDeletion: AccountDeletionRepository = koinInject()
+    val deletingAccount by accountDeletion.isDeleting.collectAsState()
+    PlatformBackHandler(enabled = deletingAccount) { /* ignora o voltar durante a exclusão */ }
+
     // Dispatcher de ações declaradas no JSON do SDUI (navegação, links externos, voltar).
     val dispatch: (UiAction) -> Unit = { action ->
         when (action.type) {
@@ -187,7 +195,7 @@ private fun MainScaffold(user: AppUser) {
             TopAppBar(
                 title = { Text(titleFor(navigator.current)) },
                 navigationIcon = {
-                    if (navigator.canGoBack) {
+                    if (navigator.canGoBack && !deletingAccount) {
                         IconButton(onClick = { navigator.back() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                         }
@@ -201,6 +209,7 @@ private fun MainScaffold(user: AppUser) {
                     NavigationBarItem(
                         selected = navigator.current == tab.target,
                         onClick = { navigator.selectRoot(tab.target) },
+                        enabled = !deletingAccount,
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
                         label = { Text(tab.label) },
                     )
@@ -216,8 +225,13 @@ private fun MainScaffold(user: AppUser) {
                 Screen.Events -> NativeEvents(navigator)
                 Screen.Devotionals -> NativeDevotionals(navigator)
                 Screen.Notifications -> NotificationsScreen(userId = user.uid)
-                Screen.Profile -> ProfileScreen(user = user, onOpenPedagogy = { navigator.push(Screen.Pedagogy) })
+                Screen.Profile -> ProfileScreen(
+                    user = user,
+                    onOpenPedagogy = { navigator.push(Screen.Pedagogy) },
+                    onOpenDeleteAccount = { navigator.push(Screen.DeleteAccount) },
+                )
                 Screen.Pedagogy -> PedagogyScreen()
+                Screen.DeleteAccount -> DeleteAccountScreen(user = user, onCancel = { navigator.back() })
                 Screen.Blog -> NativeBlog(navigator)
                 Screen.Forum -> NativeForum(navigator)
                 Screen.NewTopic -> NewTopicScreen(onCreated = { navigator.back() })
@@ -367,6 +381,7 @@ private fun titleFor(screen: Screen): String = when (screen) {
     Screen.NewTopic -> "Novo tópico"
     Screen.Birthdays -> "Aniversariantes"
     Screen.Pedagogy -> "Coordenação Pedagógica"
+    Screen.DeleteAccount -> "Excluir conta"
     is Screen.Dynamic -> screen.title.ifBlank { "Conteúdo" }
     is Screen.EventDetail -> "Evento"
     is Screen.DevotionalDetail -> "Devocional"

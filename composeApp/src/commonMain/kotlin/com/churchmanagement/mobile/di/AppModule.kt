@@ -1,5 +1,6 @@
 package com.churchmanagement.mobile.di
 
+import com.churchmanagement.mobile.data.AccountDeletionRepository
 import com.churchmanagement.mobile.data.AuthRepository
 import com.churchmanagement.mobile.data.BlogRepository
 import com.churchmanagement.mobile.data.DevotionalRepository
@@ -29,6 +30,7 @@ val appModule = module {
     single { Firebase.firestore }
 
     single { AuthRepository(get()) }
+    single { AccountDeletionRepository(get(), get()) }
     single { EventRepository(get()) }
     single { EventRegistrationRepository(get()) }
     single { DevotionalRepository(get()) }
